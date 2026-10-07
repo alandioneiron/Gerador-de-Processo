@@ -113,9 +113,11 @@ data/               cadastro versionado
   municipios.json   municípios (ISS, VT e alertas)
   site.json         e-mail do pedido de cadastro e link do repositório
 assets/             modelos da proposta (DOCX e PDF)
-scripts/            validate-data.mjs (cadastro), build.mjs (dist/), serve.mjs (servidor local)
+scripts/            validate-data.mjs (cadastro), build.mjs (dist/), serve.mjs (servidor local),
+                    importar-artefato.mjs (traz uma versão nova do artefato do C.O)
 tests/              dados fictícios (fixtures) e testes
-docs/               configuração única do repositório no GitHub
+upstream/           última versão sincronizada do artefato do C.O (base para comparar)
+docs/               configuração do GitHub e sincronização com o artefato
 .github/            workflows (CI, prévia e release) e modelos de PR e issue
 ```
 
@@ -129,5 +131,6 @@ branch → Pull Request → CI verde → merge na main (gera prévia) → Releas
 - Os checks obrigatórios são **"Validação e testes unitários"** e **"Testes E2E"**.
 - Merge na `main` **não publica**.
 - Produção só muda com uma **Release** com tag `vX.Y.Z`. Pré-release não publica.
+- O gerador evolui no artefato do C.O. Cada versão nova chega por um PR `sync/artefato-<versão>`; veja [docs/SINCRONIZAR-ARTEFATO.md](docs/SINCRONIZAR-ARTEFATO.md).
 
 Detalhes, comandos e regras de versão estão em [CONTRIBUTING.md](CONTRIBUTING.md). A configuração única do repositório no GitHub está em [docs/CONFIGURACAO-GITHUB.md](docs/CONFIGURACAO-GITHUB.md). O histórico de mudanças está em [CHANGELOG.md](CHANGELOG.md).

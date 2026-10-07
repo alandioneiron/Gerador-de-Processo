@@ -16,11 +16,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). 
 - Bateria de testes: validação do cadastro, testes unitários do cálculo e dos modelos, e testes E2E no navegador que geram PDF, DOCX e XLSX.
 - GitHub Actions: CI em todo Pull Request e na `main` (gera a prévia do site como artifact), e release com tag `vX.Y.Z` que publica no GitHub Pages.
 - Documentação: README, CONTRIBUTING, referência de campos do cadastro e configuração do repositório no GitHub.
+- Sincronização com o artefato do C.O: `upstream/` guarda a última versão importada, `npm run importar-artefato` traz calc.js, modelos (higienizados) e `cadastro.json`, e `docs/SINCRONIZAR-ARTEFATO.md` traz o prompt para o chat do C.O. `CLAUDE.md` descreve o procedimento para o Claude Code.
+- Domínio do site: https://propostas.neoguard.com.br.
 
 ### Alterado
 
 - Convertido de artefato do Claude para site estático. O cadastro, que antes ficava num banco do Claude, passou para arquivos JSON versionados.
-- Modelos da proposta em `assets/`: `modelo-proposta.docx` e `modelo-proposta.pdf`. O DOCX traz os marcadores `Cliente: {{CLIENTE}}` e `{{DATA_EXTENSO}}` no lugar dos dados do cliente de exemplo.
+- Modelos da proposta em `assets/`: `modelo-proposta.docx` e `modelo-proposta.pdf`. O DOCX traz os marcadores `Cliente: {{CLIENTE}}`, `{{DATA_EXTENSO}}` e `{{TABELA_DE_PRECOS}}` no lugar dos dados e da tabela de preços do cliente de exemplo.
 - Downloads feitos pelo próprio navegador, sem serviço externo.
 
 ### Segurança

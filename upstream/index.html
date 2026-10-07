@@ -1,0 +1,454 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gerador de Propostas Facilities</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: coluna única de trabalho (4 etapas na ordem em que a proposta é montada) + resultado fixo ao final; preto e dourado do papel timbrado Neoguard */
+:root{--bg:#F2F2EF;--surface:#FFFFFF;--ink:#1C1B18;--muted:#6A675F;--line:#D8D5CC;--gold:#8E6A1E;--gold-soft:#F3EBD8;--dark:#1F1F1F;--on-dark:#F5F1E6;--bad:#A3271B;--bad-soft:#FBE9E6;--warn:#8A5A00;--warn-soft:#FFF3D6;--ok:#1E6B3A;--ok-soft:#E3F3E8;
+--font:"Archivo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141412;--surface:#1E1D1A;--ink:#ECE9E0;--muted:#A19D92;--line:#3A3832;--gold:#D3A94F;--gold-soft:#2E2817;--dark:#0C0C0B;--on-dark:#F5F1E6;--bad:#FF8E80;--bad-soft:#3A1A16;--warn:#F2C25C;--warn-soft:#33290F;--ok:#7FD39B;--ok-soft:#14301E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141412;--surface:#1E1D1A;--ink:#ECE9E0;--muted:#A19D92;--line:#3A3832;--gold:#D3A94F;--gold-soft:#2E2817;--dark:#0C0C0B;--on-dark:#F5F1E6;--bad:#FF8E80;--bad-soft:#3A1A16;--warn:#F2C25C;--warn-soft:#33290F;--ok:#7FD39B;--ok-soft:#14301E;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:0 56px;display:flex;flex-direction:column;gap:18px}
+header.top{background:var(--dark);color:var(--on-dark);border-bottom:3px solid var(--gold)}
+header.top .in{max-width:980px;margin:0 auto;padding:18px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+header.top h1{font-size:20px;font-weight:700;margin:0;letter-spacing:.01em;text-wrap:balance}
+header.top .sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#C9B27A}
+h2{font-size:16px;font-weight:700;margin:0;text-wrap:balance}
+h2 small{font-weight:500;color:var(--muted);font-size:13px;margin-left:6px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 9px;min-width:0;width:100%}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+label.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink)}
+label.chk input{width:auto}
+button{font:inherit;font-weight:600;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;cursor:pointer}
+button.primary{background:var(--dark);color:var(--on-dark);border-color:var(--dark)}
+button.gold{background:var(--gold);color:var(--surface);border-color:var(--gold)}
+button.link{border:none;background:none;color:var(--bad);padding:4px 0;font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.note{font-size:13px;color:var(--muted);margin:0}
+.box{border-radius:4px;padding:10px 12px;font-size:14px}
+.box.bad{background:var(--bad-soft);color:var(--bad)}
+.box.warn{background:var(--warn-soft);color:var(--warn)}
+.box.ok{background:var(--ok-soft);color:var(--ok)}
+.box.info{background:var(--gold-soft);color:var(--ink)}
+.box ul{margin:4px 0 0;padding-left:18px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px;font-size:13px}
+.kv b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.posto{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.posto .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.posto .hd strong{font-size:14px}
+.posto .price{font-variant-numeric:tabular-nums;font-weight:700}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{background:var(--dark);color:var(--on-dark);font-weight:600;text-align:center;padding:7px 8px;font-size:12px}
+td{border:1px solid var(--line);padding:7px 8px}
+td.n{text-align:right;white-space:nowrap}td.c{text-align:center}
+tr.grp td{background:var(--gold-soft);font-weight:700}
+tr.sub td{font-weight:700;text-align:right}
+tr.tot td{background:var(--dark);color:var(--on-dark);font-weight:700;text-align:right}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:99px;padding:2px 9px;background:var(--gold-soft);color:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top"><div class="in"><div><div class="sub">Grupo Neoguard · Facilities</div><h1>Gerador de Propostas Facilities</h1></div><span id="conn" class="sub">Conectando…</span></div></header>
+<div class="wrap">
+<div id="fatal" class="box bad" hidden></div>
+<div class="box info">Esta página só calcula com dados cadastrados e conferidos: convenção coletiva, ISS e vale-transporte do município. Se faltar algo, ela para e pede a informação. Nada é estimado. Quem preenche é responsável pelos dados: insira as informações corretas e conferidas na fonte (escopo do cliente, CCT, contabilidade, fornecedor).</div>
+
+<section>
+  <h2>1. Cliente e local do serviço</h2>
+  <div class="grid">
+    <label>Cliente (como sai na capa)<input id="f-cliente" placeholder="Ex.: Condomínio Residencial Solaris"></label>
+    <label>Aos cuidados de (opcional)<input id="f-ac" placeholder="Ex.: Sra. Fulana de Tal"></label>
+    <label>Município da prestação do serviço<select id="f-mun"><option value="">Carregando…</option></select></label>
+    <label>Data da proposta<input id="f-data" type="date"></label>
+    <label>Versão<input id="f-versao" type="number" min="1" step="1" value="1"></label>
+    <label>Emitida por<input id="f-por" placeholder="Seu nome"></label>
+  </div>
+  <div id="mun-info"></div>
+  <div id="pend-form" hidden>
+    <div class="box bad">Este município ainda não tem convenção coletiva, ISS e vale-transporte cadastrados. Não é possível calcular. Envie a CCT registrada (PDF do Mediador/MTE ou do sindicato) para arquivar. O município é liberado assim que os parâmetros da convenção forem cadastrados no sistema.</div>
+    <div class="grid">
+      <label>Município<input id="p-cidade" placeholder="Ex.: Campinas"></label>
+      <label>UF<input id="p-uf" maxlength="2" placeholder="SP"></label>
+      <label>Sindicato / nº de registro da CCT (se souber)<input id="p-reg" placeholder="Ex.: SP001234/2026"></label>
+      <label>Cliente que motivou o pedido<input id="p-cli"></label>
+    </div>
+    <label>PDF da convenção coletiva<input id="p-file" type="file" accept="application/pdf"></label>
+    <label>Observações (ISS do município, tarifa de ônibus, o que já souber e a fonte)<textarea id="p-obs" rows="2"></textarea></label>
+    <div class="row"><button class="primary" id="p-send">Arquivar CCT e pedir cadastro</button><span id="p-msg" class="note"></span></div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Postos <small>um bloco por função e escala</small></h2>
+  <div id="postos"></div>
+  <div class="row"><button id="add-posto">+ Adicionar posto</button></div>
+</section>
+
+<section>
+  <h2>3. Materiais e equipamentos</h2>
+  <label class="chk"><input type="checkbox" id="f-mat-on"> Incluir materiais e/ou equipamentos na proposta (uma linha de valor global)</label>
+  <div id="mat-fields" hidden>
+    <div class="grid">
+      <label>Custo mensal dos materiais (R$, cotado)<input id="f-mat" type="number" min="0" step="0.01"></label>
+      <label>Investimento em equipamentos (R$, cotado)<input id="f-eq" type="number" min="0" step="0.01"></label>
+    </div>
+    <label>Descrição da linha na proposta<input id="f-mat-desc" placeholder="Ex.: Materiais de limpeza, enceradeira 350 mm, lavadora de alta pressão e 2 rádios HT – valor global mensal"></label>
+    <p class="note">Use valores cotados com fornecedor. A página aplica 10% de reserva técnica nos materiais, amortização de 24 meses + 10% de manutenção nos equipamentos, BDI e tributos.</p>
+  </div>
+</section>
+
+<section>
+  <h2>4. Conferência e emissão</h2>
+  <div id="issues"></div>
+  <div class="scroll"><div id="result"></div></div>
+  <div class="row">
+    <button class="gold" id="btn-pdf" disabled>Baixar proposta (PDF)</button>
+    <button id="btn-docx" disabled>Baixar proposta (.docx)</button>
+    <button id="btn-xlsx" disabled>Baixar memória de cálculo (.xlsx)</button>
+    <span id="emit-msg" class="note"></span>
+  </div>
+  <p class="note">A proposta sai no modelo Neoguard (capa, papel timbrado e páginas institucionais sem alteração); mudam cliente, data, tabela de preços e observações. O PDF sai pronto para enviar; o .docx fica para quando precisar editar. A memória de cálculo é interna: não envie ao cliente.</p>
+</section>
+
+<section>
+  <h2>Propostas emitidas por esta página</h2>
+  <div class="scroll"><div id="hist"><p class="note">As propostas emitidas aparecem aqui, com data, cliente, município e valor.</p></div></div>
+  <h2>CCTs aguardando cadastro</h2>
+  <div id="pend-list"><p class="note">Os pedidos de cadastro de convenção coletiva aparecem aqui até o município ser liberado.</p></div>
+</section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="calc.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="modelo.js"></script>
+<script src="tpl.js"></script>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var S={cfg:null,ccts:{},muns:{},postos:[],seq:0,ack:{}};
+var db=null,downloads=null,assets=null,userNs=null,uid=null,loaded=false;
+function h(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function brl(v){return "R$ "+Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pct(v){return (v*100).toLocaleString("pt-BR",{maximumFractionDigits:2})+"%"}
+function slug(s){return String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9 ]/g," ").replace(/\s+/g," ").trim()}
+function mun(){return S.muns[$("f-mun").value]||null}
+function cct(){var m=mun();return m?S.ccts[m.cct]||null:null}
+var today=new Date();$("f-data").value=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+
+/* ---------- município / CCT ---------- */
+function fillMun(){
+  var sel=$("f-mun"),cur=sel.value,ids=Object.keys(S.muns).sort(function(a,b){return S.muns[a].nome.localeCompare(S.muns[b].nome)});
+  sel.innerHTML='<option value="">Selecione…</option>'+ids.map(function(id){var m=S.muns[id];return '<option value="'+h(id)+'">'+h(m.nome)+" / "+h(m.uf)+"</option>"}).join("")+'<option value="__outro">Outro município (não está na lista)</option>';
+  if(cur&&(S.muns[cur]||cur==="__outro"))sel.value=cur;
+}
+function renderMun(){
+  var v=$("f-mun").value,m=mun(),c=cct(),box=$("mun-info");
+  $("pend-form").hidden=v!=="__outro";
+  if(!m){box.innerHTML="";return}
+  if(!c){box.innerHTML='<div class="box bad">O município está cadastrado, mas a convenção coletiva "'+h(m.cct)+'" não foi encontrada no cadastro. Arquive a CCT pelo formulário de município não cadastrado.</div>';return}
+  var al=(m.alertas||[]).map(function(a,i){var k=v+"#"+i;return '<label class="chk"><input type="checkbox" data-ack="'+h(k)+'"'+(S.ack[k]?" checked":"")+"> "+h(a)+" Conferi este dado na fonte e confirmo o valor.</label>"}).join("");
+  box.innerHTML='<div class="kv"><div><b>Convenção coletiva</b>'+h(c.nome)+'</div><div><b>Registro MTE</b>'+h(c.registro)+'</div><div><b>Vigência</b>'+h(c.vigencia)+'</div><div><b>ISS limpeza (7.10)</b>'+pct(m.iss_limp)+'</div><div><b>ISS mão de obra (17.05)</b>'+pct(m.iss_mo)+'</div><div><b>VT por dia</b>'+brl(m.vt_dia)+" <span class=\"note\">"+h(m.vt_obs||"")+"</span></div></div>"+(al?'<div class="box warn" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"><strong>Dados a conferir antes de emitir</strong>'+al+"</div>":"");
+}
+
+/* ---------- postos ---------- */
+function newPosto(){return{id:++S.seq,grupo:"",func:"",nome:"",tipo:"",sal:"",kit:"",escala:"5x2",dias:"",horario:"",postos:1,insal:0,acum:false,intervalo:false,premio:true,autor:""}}
+function pisoOf(p){var c=cct();if(!c)return null;return c.pisos.filter(function(x){return x.id===p.func})[0]||null}
+function renderPostos(){
+  var c=cct(),el=$("postos");
+  if(!c){el.innerHTML='<p class="note">Escolha primeiro o município: as funções e pisos vêm da convenção coletiva dele.</p>';$("add-posto").disabled=true;return}
+  $("add-posto").disabled=false;
+  if(!S.postos.length){el.innerHTML='<p class="note">Nenhum posto ainda. Adicione um bloco para cada função e escala pedida pelo cliente.</p>';return}
+  el.innerHTML=S.postos.map(function(p,i){
+    var id="po"+p.id,custom=p.func==="__outra",pi=pisoOf(p);
+    var opts='<option value="">Selecione…</option>'+c.pisos.map(function(x){return '<option value="'+h(x.id)+'"'+(p.func===x.id?" selected":"")+">"+h(x.nome)+" – piso "+brl(x.piso)+"</option>"}).join("")+'<option value="__outra"'+(custom?" selected":"")+">Outra função (fora da tabela da CCT)</option>";
+    var esc=Object.keys(NG.ESC).map(function(k){return '<option value="'+k+'"'+(p.escala===k?" selected":"")+">"+NG.ESC[k].label+"</option>"}).join("");
+    var is12=p.escala.indexOf("12x36")===0;
+    return '<div class="posto" data-id="'+p.id+'"><div class="hd"><strong>Posto '+(i+1)+'</strong><span class="row"><span class="price" id="'+id+'-price"></span><button class="link" data-del="'+p.id+'">Remover</button></span></div>'+
+    '<div class="grid">'+
+    '<label>Grupo na tabela de preços<input id="'+id+'-grupo" data-f="grupo" list="grupos" value="'+h(p.grupo)+'" placeholder="Ex.: Limpeza e Conservação"></label>'+
+    '<label>Função (tabela da CCT)<select id="'+id+'-func" data-f="func">'+opts+"</select></label>"+
+    '<label>Nome da função na proposta<input id="'+id+'-nome" data-f="nome" value="'+h(p.nome)+'"></label>'+
+    '<label>Salário base (R$)<input id="'+id+'-sal" data-f="sal" type="number" step="0.01" min="0" value="'+h(p.sal)+'"></label>'+
+    '<label>Kit de uniforme (R$/mês)<input id="'+id+'-kit" data-f="kit" type="number" step="0.01" min="0" value="'+h(p.kit)+'" placeholder="Informar valor da planilha de uniformes"></label>'+
+    '<label>Enquadramento do ISS<select id="'+id+'-tipo" data-f="tipo"><option value="">Selecione…</option><option value="limp"'+(p.tipo==="limp"?" selected":"")+'>Limpeza/conservação (7.10)</option><option value="mo"'+(p.tipo==="mo"?" selected":"")+">Portaria/mão de obra (17.05)</option></select></label>"+
+    '<label>Escala<select id="'+id+'-escala" data-f="escala">'+esc+"</select></label>"+
+    (p.escala==="custom"?'<label>Dias trabalhados por mês (VT/VR)<input id="'+id+'-dias" data-f="dias" type="number" step="0.5" min="1" max="31" value="'+h(p.dias)+'"></label>':"")+
+    '<label>Dias e horário (texto da proposta)<input id="'+id+'-horario" data-f="horario" value="'+h(p.horario)+'" placeholder="Ex.: seg a sex 8h–17h / sáb 8h–12h"></label>'+
+    '<label>Quantidade de postos<input id="'+id+'-postos" data-f="postos" type="number" min="1" step="1" value="'+h(p.postos)+'"></label>'+
+    '<label>Insalubridade (só se o cliente pedir ou houver laudo)<select id="'+id+'-insal" data-f="insal"><option value="0"'+(!p.insal?" selected":"")+'>Sem insalubridade</option><option value="0.2"'+(p.insal==0.2?" selected":"")+'>20% do salário mínimo</option><option value="0.4"'+(p.insal==0.4?" selected":"")+">40% do salário mínimo</option></select></label>"+
+    ((custom||(pi&&Number(p.sal)!==pi.piso))?'<label>Motivo do salário diferente do piso<input id="'+id+'-autor" data-f="autor" value="'+h(p.autor)+'" placeholder="Ex.: salário pedido pelo cliente no escopo"></label>':"")+
+    "</div><div class=\"row\">"+
+    '<label class="chk"><input type="checkbox" id="'+id+'-acum" data-f="acum"'+(p.acum?" checked":"")+"> Acúmulo de função (+"+pct(c.acumulo)+")</label>"+
+    (is12?'<label class="chk"><input type="checkbox" id="'+id+'-intervalo" data-f="intervalo"'+(p.intervalo?" checked":"")+"> Intervalo de almoço indenizado (posto não fica descoberto)</label>":"")+
+    '<label class="chk"><input type="checkbox" id="'+id+'-premio" data-f="premio"'+(p.premio?" checked":"")+"> Prêmio de assiduidade "+brl(c.premio)+"</label>"+
+    "</div>"+(pi&&pi.obs?'<p class="note">'+h(pi.obs)+"</p>":"")+"</div>";
+  }).join("")+'<datalist id="grupos"><option value="Limpeza e Conservação"><option value="Portaria"><option value="Controle de Acesso"><option value="Zeladoria"><option value="Facilities"></datalist>';
+}
+function validate(){
+  var out=[],m=mun(),c=cct(),v=$("f-mun").value;
+  if(!$("f-cliente").value.trim())out.push("Informe o nome do cliente.");
+  if(!v)out.push("Escolha o município da prestação do serviço.");
+  else if(v==="__outro")out.push("Município sem CCT cadastrada: arquive a convenção e aguarde o cadastro.");
+  if(!$("f-data").value)out.push("Informe a data da proposta.");
+  if(!$("f-por").value.trim())out.push("Informe quem está emitindo a proposta.");
+  if(m)(m.alertas||[]).forEach(function(a,i){if(!S.ack[v+"#"+i])out.push("Confira na fonte e confirme: "+a)});
+  if(c&&!S.postos.length)out.push("Adicione pelo menos um posto.");
+  S.postos.forEach(function(p,i){
+    var n="Posto "+(i+1)+": ",pi=pisoOf(p);
+    if(!p.grupo.trim())out.push(n+"informe o grupo da tabela de preços.");
+    if(!p.func)out.push(n+"escolha a função.");
+    if(!p.nome.trim())out.push(n+"informe o nome da função na proposta.");
+    if(!(Number(p.sal)>0))out.push(n+"informe o salário base.");
+    if(pi&&Number(p.sal)>0&&Number(p.sal)<pi.piso)out.push(n+"salário abaixo do piso da CCT ("+brl(pi.piso)+").");
+    if((p.func==="__outra"||(pi&&Number(p.sal)>pi.piso))&&!p.autor.trim())out.push(n+"salário diferente da tabela da CCT. Informe o motivo.");
+    if(p.kit===""||!(Number(p.kit)>=0))out.push(n+"kit de uniforme sem valor cadastrado para esta função. Informe o valor da planilha de uniformes.");
+    if(!p.tipo)out.push(n+"escolha o enquadramento do ISS.");
+    if(p.escala==="custom"&&!(Number(p.dias)>0))out.push(n+"informe os dias trabalhados por mês.");
+    if(!p.horario.trim())out.push(n+"informe dias e horário.");
+    if(!(Number(p.postos)>=1))out.push(n+"quantidade de postos inválida.");
+  });
+  if($("f-mat-on").checked){
+    if(!(Number($("f-mat").value)>0)&&!(Number($("f-eq").value)>0))out.push("Materiais/equipamentos marcados, mas sem valor cotado.");
+    if(!$("f-mat-desc").value.trim())out.push("Descreva a linha de materiais/equipamentos.");
+  }
+  return out;
+}
+function compute(){
+  var m=mun(),c=cct();if(!m||!c||!S.cfg)return null;
+  var rows=[];
+  for(var i=0;i<S.postos.length;i++){var p=S.postos[i];
+    if(!(Number(p.sal)>0)||p.kit===""||!p.tipo||(p.escala==="custom"&&!(Number(p.dias)>0))||!(Number(p.postos)>=1))return null;
+    rows.push({p:p,r:NG.priceRow(S.cfg,c,m,{sal:p.sal,kit:p.kit,tipo:p.tipo,escala:p.escala,dias:p.dias,postos:Number(p.postos),insal:Number(p.insal),acum:p.acum,intervalo:p.escala.indexOf("12x36")===0&&p.intervalo,premio:p.premio})});
+  }
+  var ex=$("f-mat-on").checked?NG.priceExtras(S.cfg,m,$("f-mat").value,$("f-eq").value):null;
+  var groups=[],gi={};
+  rows.forEach(function(x){var g=x.p.grupo.trim().toUpperCase()||"(SEM GRUPO)";if(!(g in gi)){gi[g]=groups.length;groups.push({nome:g,rows:[],sub:0,colab:0})}var G=groups[gi[g]];G.rows.push(x);G.sub=NG.r2(G.sub+x.r.total);G.colab+=x.r.colab});
+  var total=groups.reduce(function(a,g){return a+g.sub},0)+(ex?ex.total:0),colab=groups.reduce(function(a,g){return a+g.colab},0);
+  return{rows:rows,groups:groups,ex:ex,total:NG.r2(total),colab:colab,m:m,c:c};
+}
+function funcLabel(p){var s=p.nome.trim();if(p.acum)s+=" (com acúmulo de função)";if(Number(p.insal)>0)s+=" – com adicional de insalubridade de "+Math.round(p.insal*100)+"%";return s}
+function escLabel(p){var e=p.escala.indexOf("12x36")===0?NG.ESC[p.escala].label:"";return (e?e+" – ":"")+p.horario.trim()}
+function colabTxt(n){return n+" colaborador"+(n>1?"es":"")}
+function refresh(){
+  var iss=validate(),R=compute();
+  S.postos.forEach(function(p){var el=$("po"+p.id+"-price");if(el){var x=R&&R.rows.filter(function(y){return y.p===p})[0];el.textContent=x?brl(x.r.total)+"/mês":""}});
+  $("issues").innerHTML=iss.length?'<div class="box bad"><strong>Falta resolver antes de emitir ('+iss.length+")</strong><ul>"+iss.map(function(a){return"<li>"+h(a)+"</li>"}).join("")+"</ul></div>":'<div class="box ok">Tudo conferido. Pode emitir.</div>';
+  var ok=!iss.length&&!!R;
+  if(loaded&&!downloads)$("emit-msg").textContent="Download indisponível neste acesso. Abra o link no navegador (claude.ai), logada na sua conta Claude. [código: sem-download]";else if(typeof PDFLib==="undefined"||!window.TPL_PDF_B64)$("emit-msg").textContent="O gerador de PDF não carregou. Recarregue a página. [código: sem-pdflib]";$("btn-pdf").disabled=!ok||!downloads;$("btn-docx").disabled=!ok||!downloads;$("btn-xlsx").disabled=!ok||!downloads;
+  if(!R||!R.rows.length){$("result").innerHTML='<p class="note">A tabela de preços aparece aqui assim que município e postos estiverem completos.</p>';return}
+  var t='<table><thead><tr><th>Postos</th><th>Função</th><th>Escala / turno</th><th>Total colab.</th><th>Valor por colaborador</th><th>Valor por posto</th><th>Valor total mensal</th></tr></thead><tbody>';
+  R.groups.forEach(function(g){t+='<tr class="grp"><td colspan="7">'+h(g.nome)+"</td></tr>";
+    g.rows.forEach(function(x){t+='<tr><td class="c">'+x.p.postos+"</td><td>"+h(funcLabel(x.p))+'</td><td class="c">'+h(escLabel(x.p))+'</td><td class="c">'+x.r.colab+'</td><td class="n">'+brl(x.r.preco)+'</td><td class="n">'+brl(x.r.posto)+'</td><td class="n">'+brl(x.r.total)+"</td></tr>"});
+    t+='<tr class="sub"><td colspan="6">Subtotal '+h(g.nome)+" – "+colabTxt(g.colab)+'</td><td class="n">'+brl(g.sub)+"</td></tr>"});
+  if(R.ex)t+='<tr class="grp"><td colspan="7">MATERIAIS E EQUIPAMENTOS</td></tr><tr><td class="c">1</td><td colspan="5">'+h($("f-mat-desc").value)+'</td><td class="n">'+brl(R.ex.total)+"</td></tr>";
+  t+='<tr class="tot"><td colspan="6">TOTAL MENSAL DOS SERVIÇOS – '+colabTxt(R.colab)+'</td><td class="n">'+brl(R.total)+"</td></tr></tbody></table>";
+  t+='<details style="margin-top:12px"><summary>Composição de custo por colaborador (interno)</summary><div class="scroll"><table style="margin-top:8px"><thead><tr><th>Função</th><th>Remuneração</th><th>Encargos</th><th>VT</th><th>VR</th><th>Benefícios</th><th>Insumos</th><th>Custo</th><th>BDI</th><th>ISS</th><th>Preço</th></tr></thead><tbody>'+R.rows.map(function(x){var r=x.r;return"<tr><td>"+h(x.p.nome)+'</td><td class="n">'+brl(r.rem)+'</td><td class="n">'+brl(r.enc)+'</td><td class="n">'+brl(r.vt)+'</td><td class="n">'+brl(r.vr)+'</td><td class="n">'+brl(r.benef)+'</td><td class="n">'+brl(r.insumos)+'</td><td class="n">'+brl(r.custo)+'</td><td class="n">'+brl(r.bdi)+'</td><td class="c">'+pct(r.iss)+'</td><td class="n">'+brl(r.preco)+"</td></tr>"}).join("")+"</tbody></table></div></details>";
+  $("result").innerHTML=t;
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("input",function(e){var t=e.target,card=t.closest&&t.closest(".posto");
+  if(t.dataset&&t.dataset.ack){S.ack[t.dataset.ack]=t.checked;refresh();return}
+  if(card&&t.dataset.f){var p=S.postos.filter(function(x){return x.id==card.dataset.id})[0],f=t.dataset.f;if(!p)return;
+    p[f]=t.type==="checkbox"?t.checked:t.value;
+    if(f==="func"){var pi=pisoOf(p);if(pi){p.nome=pi.nome.replace(/ \(.*\)$/,"");p.sal=pi.piso;p.kit=pi.kit==null?"":pi.kit;p.tipo=pi.tipo}else{p.sal="";p.kit="";p.tipo=""}renderPostos()}
+    else if(f==="escala"){renderPostos()}
+    else if(f==="sal"&&t.dataset.struct!=="1"){var need=p.func==="__outra"||(pisoOf(p)&&Number(p.sal)!==pisoOf(p).piso),has=!!$("po"+p.id+"-autor");if(need!==has){renderPostos();var s=$("po"+p.id+"-sal");if(s){s.focus()}}}
+  }
+  refresh();
+});
+document.addEventListener("click",function(e){var t=e.target;
+  if(t.dataset&&t.dataset.del){S.postos=S.postos.filter(function(x){return x.id!=t.dataset.del});renderPostos();refresh()}
+});
+$("add-posto").addEventListener("click",function(){S.postos.push(newPosto());renderPostos();refresh()});
+$("f-mun").addEventListener("change",function(){S.postos=[];renderMun();renderPostos();refresh()});
+$("f-mat-on").addEventListener("change",function(){$("mat-fields").hidden=!this.checked;refresh()});
+
+/* ---------- DOCX (modelo Neoguard) ---------- */
+function X(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function wbrl(v){return "R$ "+Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function run(t,b,sz,color){return '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+(b?"<w:b/><w:bCs/>":"")+'<w:sz w:val="'+(sz||16)+'"/><w:szCs w:val="'+(sz||16)+'"/>'+(color?'<w:color w:val="'+color+'"/>':"")+'</w:rPr><w:t xml:space="preserve">'+X(t)+"</w:t></w:r>"}
+function para(runs,jc){return '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="'+(jc||"left")+'"/></w:pPr>'+runs.join("")+"</w:p>"}
+var W=[380,1320,780,420,700,700,700];
+function cell(i,runs,jc,fill,span){span=span||1;var w=0;for(var k=i;k<i+span;k++)w+=W[k];return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="pct"/>'+(span>1?'<w:gridSpan w:val="'+span+'"/>':"")+'<w:shd w:val="clear" w:color="auto" w:fill="'+(fill||"FFFFFF")+'"/><w:vAlign w:val="center"/></w:tcPr>'+para(runs,jc)+"</w:tc>"}
+function tr(cells,header){return "<w:tr><w:trPr><w:cantSplit/>"+(header?"<w:tblHeader/>":"")+'<w:jc w:val="center"/></w:trPr>'+cells.join("")+"</w:tr>"}
+function tableXml(R){
+  var DARK="1F1F1F",H=["Postos","Função","Escala / turno","Total colab.","Valor por colaborador","Valor por posto","Valor total mensal"];
+  var out=[tr(H.map(function(t,i){return cell(i,[run(t,true,15,"FFFFFF")],"center",DARK)}),true)];
+  R.groups.forEach(function(g){
+    out.push(tr([cell(0,[run(g.nome,true,16)],"left","E7E6E6",7)]));
+    g.rows.forEach(function(x){out.push(tr([cell(0,[run(String(x.p.postos))],"center"),cell(1,[run(funcLabel(x.p))]),cell(2,[run(escLabel(x.p))],"center"),cell(3,[run(String(x.r.colab))],"center"),cell(4,[run(wbrl(x.r.preco))],"right"),cell(5,[run(wbrl(x.r.posto))],"right"),cell(6,[run(wbrl(x.r.total))],"right")]))});
+    out.push(tr([cell(0,[run("Subtotal "+titleCase(g.nome)+" – "+colabTxt(g.colab),true,16)],"right",null,6),cell(6,[run(wbrl(g.sub),true,16)],"right")]));
+  });
+  if(R.ex){out.push(tr([cell(0,[run("MATERIAIS E EQUIPAMENTOS",true,16)],"left","E7E6E6",7)]));
+    out.push(tr([cell(0,[run("1")],"center"),cell(1,[run($("f-mat-desc").value.trim())],"left",null,5),cell(6,[run(wbrl(R.ex.total),true)],"right")]))}
+  out.push(tr([cell(0,[run("TOTAL MENSAL DOS SERVIÇOS – "+colabTxt(R.colab),true,18,"FFFFFF")],"right",DARK,6),cell(6,[run(wbrl(R.total),true,16,"FFFFFF")],"right",DARK)]));
+  var grid=W.map(function(w){return '<w:gridCol w:w="'+Math.round(9067*w/5000)+'"/>'}).join("");
+  var bd=["top","left","bottom","right","insideH","insideV"].map(function(s){return "<w:"+s+' w:val="single" w:sz="4" w:space="0" w:color="A6A6A6"/>'}).join("");
+  return '<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:jc w:val="center"/><w:tblBorders>'+bd+'</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="60" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tblCellMar><w:tblLook w:val="04A0"/></w:tblPr><w:tblGrid>'+grid+"</w:tblGrid>"+out.join("")+"</w:tbl>";
+}
+function titleCase(s){return s.toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase()}).replace(/ (E|De|Da|Do) /g,function(m){return m.toLowerCase()})}
+function noteText(R){
+  var t=["Valores mensais."];
+  if(R.rows.some(function(x){return x.r.cpp===2}))t.push("Postos 12x36 operam com 2 colaboradores por posto em revezamento; o valor do posto corresponde à soma dos seus colaboradores.");
+  if(R.rows.some(function(x){return x.r.interv>0}))t.push("Nos postos 12x36 indicados o intervalo intrajornada é indenizado (já incluso no valor), sem descobrir o posto.");
+  if(R.rows.some(function(x){return x.r.insal>0}))t.push("Adicional de insalubridade incluído nos postos indicados.");
+  t.push("Estão inclusos encargos sociais, benefícios da Convenção Coletiva, uniformes e EPIs.");
+  return t.join(" ");
+}
+function dataExtenso(iso){var p=iso.split("-"),M=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];return Number(p[2])+" de "+M[Number(p[1])-1]+" de "+p[0]+"."}
+function reEsc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function buildDocx(R){
+  return JSZip.loadAsync(window.MODELO_B64,{base64:true}).then(function(zip){
+    return zip.file("word/document.xml").async("string").then(function(x){
+      var t0=x.indexOf("<w:tbl>"),t1=x.indexOf("</w:tbl>")+8;
+      if(t0<0||x.indexOf("Cliente: {{CLIENTE_EXEMPLO}}")<0||x.indexOf("8 de julho de 2026.")<0)throw new Error("modelo");
+      var note='<w:p><w:pPr><w:spacing w:before="60" w:after="60" w:line="260" w:lineRule="auto"/></w:pPr>'+run(noteText(R),false,15,"595959")+"</w:p>";
+      x=x.slice(0,t0)+tableXml(R)+note+x.slice(t1);
+      var cli="Cliente: "+X($("f-cliente").value.trim());
+      x=x.split("Cliente: {{CLIENTE_EXEMPLO}}").join(cli).split("8 de julho de 2026.").join(dataExtenso($("f-data").value));
+      var ac=$("f-ac").value.trim();
+      if(ac){var rx=new RegExp("("+reEsc(cli)+"</w:t></w:r></w:p><w:p [^>]*><w:pPr>(?:(?!</w:pPr>)[\\s\\S])*</w:pPr>)(</w:p>)","g");
+        x=x.replace(rx,function(m,a,b){return a+'<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/></w:rPr><w:t xml:space="preserve">A/C: '+X(ac)+"</w:t></w:r>"+b})}
+      var i=x.indexOf("A presente proposta contempla exclusivamente");
+      if(i>=0){var j=x.indexOf("</w:t>",i);
+        var obs=R.ex?"A presente proposta contempla a mão de obra e os materiais e equipamentos descritos na tabela de preços. Materiais de reposição sanitária (papel higiênico, papel toalha e sabonete) não estão incluídos. Os equipamentos permanecem de propriedade da Neoguard. ":"A presente proposta contempla exclusivamente a mão de obra, com uniformes, EPIs e benefícios da Convenção Coletiva aplicável. Materiais de limpeza, insumos e equipamentos não estão incluídos e poderão ser cotados à parte, se solicitado. ";
+        x=x.slice(0,i)+X(obs)+x.slice(j)}
+      if(!R.ex){x=x.split("Equipamentos profissionais").join("Procedimentos padronizados").split("Enceradeiras, lavadora de alta pressão e aspiradores industriais inclusos.").join("Rotinas de limpeza padronizadas, com checklists diários.")}
+      if(!R.rows.some(function(y){return /encarregad/i.test(y.p.nome)}))x=x.split("Encarregada dedicada, checklists e acompanhamento da gestão Neoguard.").join("Supervisão periódica e acompanhamento da gestão Neoguard.");
+      zip.file("word/document.xml",x);
+      return zip.generateAsync({type:"blob",compression:"DEFLATE"});
+    });
+  });
+}
+/* ---------- PDF (páginas do modelo + capa, tabela e data redesenhadas) ---------- */
+function buildPdf(R){
+  var P=PDFLib,rgb=P.rgb,hex=function(h){return rgb(parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255)};
+  var bin=atob(window.TPL_PDF_B64),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+  return Promise.all([P.PDFDocument.load(u8),P.PDFDocument.create()]).then(function(a){var tpl=a[0],doc=a[1];
+    var mat=R.ex?1:0,enc=R.rows.some(function(y){return /encarregad/i.test(y.p.nome)})?1:0;
+    return Promise.all([doc.embedFont(P.StandardFonts.Helvetica),doc.embedFont(P.StandardFonts.HelveticaBold)]).then(function(f){var F=f[0],FB=f[1];
+      var clean=function(t){return String(t).replace(/[‐-‒]/g,"-").replace(/[^ -~ -ÿ–—‘’“”•…]/g,"")};
+      var H=793.7,X0=85.3,TW=453.35,WP=[380,1320,780,420,700,700,700],cw=WP.map(function(w){return TW*w/5000}),PADX=3,PADY=2.6,LH=9.4,YMIN=70;
+      var GREY=hex("A6A6A6"),DARK=hex("1F1F1F"),WHITE=rgb(1,1,1),INK=rgb(0,0,0),GFILL=hex("E7E6E6");
+      function wrap(t,font,sz,w){var out=[],line="";clean(t).split(/ +/).forEach(function(word){var tr=line?line+" "+word:word;if(font.widthOfTextAtSize(tr,sz)<=w||!line)line=tr;else{out.push(line);line=word}});if(line)out.push(line);return out}
+      function blankPage(){return doc.copyPages(tpl,[3]).then(function(p){doc.addPage(p[0]);return p[0]})}
+      return doc.copyPages(tpl,[0,1,2]).then(function(ps){
+        ps.forEach(function(p){doc.addPage(p)});
+        ps[0].drawText(clean("Cliente: "+$("f-cliente").value.trim()),{x:39.7,y:H-396.75,size:12,font:F,color:INK});
+        var ac=$("f-ac").value.trim();if(ac)ps[0].drawText(clean("A/C: "+ac),{x:39.7,y:H-417.45,size:12,font:F,color:INK});
+        /* linhas da tabela: cada célula = {i,span,text,bold,sz,color,fill,al} */
+        var rows=[],c=function(i,text,o){o=o||{};return{i:i,span:o.span||1,text:text,font:o.b?FB:F,sz:o.sz||8,color:o.color||INK,fill:o.fill||null,al:o.al||"left"}};
+        rows.push(["Postos","Função","Escala / turno","Total colab.","Valor por colaborador","Valor por posto","Valor total mensal"].map(function(t,i){return c(i,t,{b:1,sz:7.5,color:WHITE,fill:DARK,al:"center"})}));
+        R.groups.forEach(function(g){
+          rows.push([c(0,g.nome,{b:1,span:7,fill:GFILL})]);
+          g.rows.forEach(function(x){rows.push([c(0,String(x.p.postos),{al:"center"}),c(1,funcLabel(x.p)),c(2,escLabel(x.p),{al:"center"}),c(3,String(x.r.colab),{al:"center"}),c(4,wbrl(x.r.preco),{al:"right"}),c(5,wbrl(x.r.posto),{al:"right"}),c(6,wbrl(x.r.total),{al:"right"})])});
+          rows.push([c(0,"Subtotal "+titleCase(g.nome)+" – "+colabTxt(g.colab),{b:1,span:6,al:"right"}),c(6,wbrl(g.sub),{b:1,al:"right"})]);
+        });
+        if(R.ex){rows.push([c(0,"MATERIAIS E EQUIPAMENTOS",{b:1,span:7,fill:GFILL})]);rows.push([c(0,"1",{al:"center"}),c(1,$("f-mat-desc").value.trim(),{span:5}),c(6,wbrl(R.ex.total),{b:1,al:"right"})])}
+        rows.push([c(0,"TOTAL MENSAL DOS SERVIÇOS – "+colabTxt(R.colab),{b:1,sz:9,span:6,al:"right",color:WHITE,fill:DARK}),c(6,wbrl(R.total),{b:1,color:WHITE,fill:DARK,al:"right"})]);
+        var page=ps[2],y=H-150,chain=Promise.resolve();
+        function drawRow(cells){
+          var hgt=0;cells.forEach(function(k){k.w=0;for(var j=k.i;j<k.i+k.span;j++)k.w+=cw[j];k.x=X0;for(var j2=0;j2<k.i;j2++)k.x+=cw[j2];k.lines=wrap(k.text,k.font,k.sz,k.w-2*PADX);hgt=Math.max(hgt,k.lines.length*(k.sz+1.4)+2*PADY)});
+          var go=function(){
+            cells.forEach(function(k){
+              page.drawRectangle({x:k.x,y:y-hgt,width:k.w,height:hgt,color:k.fill||WHITE,borderColor:GREY,borderWidth:.5});
+              var lh=k.sz+1.4,ty=y-(hgt-k.lines.length*lh)/2-k.sz*0.82;
+              k.lines.forEach(function(l,n){var tw=k.font.widthOfTextAtSize(l,k.sz),tx=k.al==="right"?k.x+k.w-PADX-tw:k.al==="center"?k.x+(k.w-tw)/2:k.x+PADX;page.drawText(l,{x:tx,y:ty-n*lh,size:k.sz,font:k.font,color:k.color})});
+            });y-=hgt};
+          if(y-hgt<YMIN)return blankPage().then(function(np){page=np;y=H-125;go()});
+          go();return null;
+        }
+        rows.forEach(function(r){chain=chain.then(function(){return drawRow(r)})});
+        return chain.then(function(){
+          var nl=wrap(noteText(R),F,7.5,TW),need=nl.length*LH+8;
+          var put=function(){y-=6;nl.forEach(function(l){y-=LH;page.drawText(l,{x:X0,y:y,size:7.5,font:F,color:hex("595959")})})};
+          if(y-need<YMIN)return blankPage().then(function(np){page=np;y=H-125;put()});put();
+        }).then(function(){return doc.copyPages(tpl,[4+mat*2+enc,mat?10:8,mat?11:9])}).then(function(q){
+          q.forEach(function(p){doc.addPage(p)});
+          q[2].drawText(clean(dataExtenso($("f-data").value)),{x:445.3,y:H-354.65,size:11,font:F,color:INK});
+          return doc.save();
+        });
+      });
+    });
+  }).then(function(bytes){return new Blob([bytes])});
+}
+function baseName(){return slug($("f-cliente").value)+" - "+$("f-data").value+"_v"+(parseInt($("f-versao").value,10)||1)}
+function record(R,kind){
+  if(!db)return Promise.resolve();
+  var id=(slug($("f-cliente").value)+"-"+$("f-data").value+"-v"+(parseInt($("f-versao").value,10)||1)).toLowerCase().replace(/[^a-z0-9]+/g,"-");
+  return db.doc("propostas/"+id).set({cliente:$("f-cliente").value.trim(),ac:$("f-ac").value.trim(),municipio:R.m.nome+"/"+R.m.uf,cct:R.c.registro,data:$("f-data").value,versao:parseInt($("f-versao").value,10)||1,
+    emitida_por:$("f-por").value.trim(),por_id:uid||"",em:new Date().toISOString(),total:R.total,colab:R.colab,
+    postos:R.rows.map(function(x){return{grupo:x.p.grupo,funcao:funcLabel(x.p),escala:escLabel(x.p),postos:Number(x.p.postos),colab:x.r.colab,salario:Number(x.p.sal),kit:Number(x.p.kit),premio:!!x.p.premio,autorizado_por:x.p.autor||"",preco_colab:x.r.preco,total:x.r.total}}),
+    materiais:R.ex?{descricao:$("f-mat-desc").value.trim(),custo_materiais:Number($("f-mat").value)||0,investimento_equip:Number($("f-eq").value)||0,preco:R.ex.total}:null,
+    confirmacoes:(R.m.alertas||[]).slice()}).catch(function(){});
+}
+function fail(e){var c=e&&e.code,m={declined:"Download cancelado na janela de confirmação.",rate_limited:"Já existe um download aguardando confirmação. Confirme ou feche a janela e tente de novo.",unavailable:"Este acesso não permite baixar arquivos. Abra o link no navegador (claude.ai), logada na sua conta.",not_granted:"O download não foi liberado para este acesso. Abra o link no navegador (claude.ai), logada na sua conta.",capability_disabled:"Download desativado neste visualizador. Abra o link no navegador (claude.ai).",extension_not_enabled:"Este formato de arquivo está bloqueado neste visualizador.",rejected_extension:"Este formato de arquivo não é aceito neste visualizador.",too_large:"Arquivo grande demais para este visualizador."};
+  $("emit-msg").textContent=(e&&e.message==="modelo")?"O modelo da proposta não foi reconhecido. Recarregue a página e tente de novo.":(m[c]||"Não foi possível gerar o arquivo.")+" [código: "+(c||(e&&e.name)||"erro")+(e&&e.message&&!c?" – "+String(e.message).slice(0,120):"")+"]"}
+$("btn-docx").addEventListener("click",function(){var R=compute();if(!R||validate().length)return;$("emit-msg").textContent="Gerando a proposta…";
+  buildDocx(R).then(function(blob){return downloads.save({filename:"PROPOSTA COMERCIAL FACILITIES - "+baseName()+".docx",data:blob})}).then(function(){$("emit-msg").textContent="Proposta baixada e registrada no histórico.";return record(R)}).catch(fail)});
+$("btn-pdf").addEventListener("click",function(){var R=compute();if(!R||validate().length)return;$("emit-msg").textContent="Gerando o PDF…";
+  buildPdf(R).then(function(blob){return downloads.save({filename:"PROPOSTA COMERCIAL FACILITIES - "+baseName()+".pdf",data:blob})}).then(function(){$("emit-msg").textContent="PDF baixado e registrado no histórico.";return record(R)}).catch(fail)});
+$("btn-xlsx").addEventListener("click",function(){var R=compute();if(!R||validate().length)return;
+  try{var wb=XLSX.utils.book_new(),c=R.c,m=R.m,g=S.cfg;
+    var res=[["RESUMO – "+$("f-cliente").value.trim()+" – "+$("f-data").value+" – v"+$("f-versao").value],[],["Postos","Colab.","Função","Escala","Valor por colaborador","Valor por posto","Valor total mensal"]];
+    R.rows.forEach(function(x){res.push([Number(x.p.postos),x.r.colab,funcLabel(x.p),escLabel(x.p),x.r.preco,x.r.posto,x.r.total])});
+    if(R.ex)res.push([1,"",$("f-mat-desc").value.trim(),"","","",R.ex.total]);res.push(["",R.colab,"TOTAL MENSAL","","","",R.total]);
+    var po=[["Grupo","Função","Salário base","Insalubridade","Adic. noturno","Remuneração","Encargos","VT líquido","VR","Prêmio assiduidade","Intervalo indenizado","Benefícios fixos (total)","Insumos (kit+ASO+treino+mat.)","Custo","BDI","Crédito PIS/COFINS","ISS","Preço por colaborador","Colab.","Total mensal","Dias VT/VR","Motivo salário fora do piso"]];
+    R.rows.forEach(function(x){var r=x.r;po.push([x.p.grupo,funcLabel(x.p),r.sal,r.insal,r.noturno,r.rem,r.enc,r.vt,r.vr,r.premio,r.interv,r.benef,r.insumos,r.custo,r.bdi,r.cred,r.iss,r.preco,r.colab,r.total,r.dias,x.p.autor||""])});
+    var pa=[["Parâmetro","Valor"],["Município",m.nome+"/"+m.uf],["CCT",c.nome],["Registro MTE",c.registro],["Vigência",c.vigencia],["Encargos sociais",c.enc],["Adicional noturno",c.adn],["VR/dia",c.vr],["Desconto VR/dia",c.vr_desc],["Cesta básica",c.cesta],["Prêmio de assiduidade",c.premio],["PPR anual",c.ppr],["Benefício social",c.social],["Assistência saúde",c.saude],["Salário mínimo (base insalubridade)",c.sm],["Acúmulo de função",c.acumulo],["ISS limpeza",m.iss_limp],["ISS mão de obra",m.iss_mo],["VT/dia",m.vt_dia],["BDI administração",g.bdi_adm],["BDI lucro",g.bdi_luc],["PIS",g.pis],["COFINS",g.cofins],["Desconto VT empregado",g.vtd],["Seguro de vida",g.seg],["Treinamento",g.trein],["ASO",g.aso],["Materiais individuais",g.matind],["Plantões/mês 12x36",g.plant],["Emitida por",$("f-por").value.trim()]];
+    if(R.ex)pa.push(["Custo mensal materiais (cotado)",Number($("f-mat").value)||0],["Investimento equipamentos (cotado)",Number($("f-eq").value)||0],["Reserva técnica materiais",g.res],["Amortização (meses)",g.amort],["Manutenção equipamentos",g.manut]);
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(res),"RESUMO");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(po),"POSTOS");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pa),"PARAMETROS");
+    var buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+    downloads.save({filename:"MEMORIA - "+baseName()+".xlsx",data:new Blob([buf])}).then(function(){$("emit-msg").textContent="Memória de cálculo baixada."}).catch(fail);
+  }catch(e){fail(e)}});
+
+/* ---------- pedido de cadastro de CCT ---------- */
+$("p-send").addEventListener("click",function(){
+  var cid=$("p-cidade").value.trim(),uf=$("p-uf").value.trim().toUpperCase(),f=$("p-file").files[0],msg=$("p-msg");
+  if(!cid||uf.length!==2){msg.textContent="Informe município e UF.";return}
+  if(!f){msg.textContent="Anexe o PDF da convenção coletiva.";return}
+  if(!db){msg.textContent="Sem conexão com o arquivo. Recarregue a página e tente de novo.";return}
+  if(!assets){msg.textContent="Seu acesso não permite arquivar PDF aqui. É preciso acesso de edição à página.";return}
+  msg.textContent="Arquivando…";this.disabled=true;var btn=this;
+  assets.upload(f,{type:"application/pdf"}).then(function(a){
+    return db.collection("pendencias").add({municipio:cid,uf:uf,registro:$("p-reg").value.trim(),cliente:$("p-cli").value.trim(),obs:$("p-obs").value.trim(),arquivo:a.id,arquivo_nome:f.name,status:"aguardando cadastro",pedido_por:$("f-por").value.trim(),por_id:uid||"",em:new Date().toISOString()});
+  }).then(function(){msg.textContent="CCT arquivada. O município será liberado quando o cadastro for concluído.";$("p-file").value=""}).catch(function(e){var c=e&&e.code;msg.textContent=c==="too_large"?"PDF acima de 20 MB. Envie um arquivo menor.":c==="unsupported_type"?"O arquivo precisa ser um PDF.":"Não foi possível arquivar. Tente de novo."}).then(function(){btn.disabled=false});
+});
+
+/* ---------- carga ---------- */
+function start(){
+  refresh();renderPostos();
+  if(!window.claude||!window.claude.use){$("conn").textContent="Fora do visualizador";$("fatal").hidden=false;$("fatal").textContent="Abra esta página pelo link do Claude para carregar as convenções cadastradas.";return}
+  Promise.all([claude.use("db"),claude.use("downloads"),claude.use("assets"),claude.use("user")]).then(function(ns){
+    db=ns[0];downloads=ns[1];assets=ns[2];userNs=ns[3];loaded=true;
+    if(userNs&&userNs.id)userNs.id().then(function(i){uid=i}).catch(function(){});
+    if(!db){$("conn").textContent="Sem acesso aos dados";$("fatal").hidden=false;$("fatal").textContent="Não foi possível acessar as convenções cadastradas. Entre na sua conta Claude e recarregue a página.";return}
+    if(!downloads){$("emit-msg").textContent="Este visualizador não permite baixar arquivos. Abra a página no navegador ou no app do Claude."}
+    $("conn").textContent="Dados carregados";
+    var onErr=function(){$("conn").textContent="Erro ao ler os dados"};
+    db.doc("config/neoguard").onSnapshot(function(s){S.cfg=s.exists?s.data():null;if(!S.cfg){$("fatal").hidden=false;$("fatal").textContent="Parâmetros Neoguard ainda não cadastrados."}else $("fatal").hidden=true;refresh()},onErr);
+    db.collection("ccts").onSnapshot(function(q){S.ccts={};q.docs.forEach(function(d){S.ccts[d.id]=d.data()});renderMun();renderPostos();refresh()},onErr);
+    db.collection("municipios").onSnapshot(function(q){S.muns={};q.docs.forEach(function(d){S.muns[d.id]=d.data()});fillMun();renderMun();renderPostos();refresh()},onErr);
+    db.collection("propostas").orderBy("em","desc").limit(40).onSnapshot(function(q){
+      if(q.empty)return;
+      $("hist").innerHTML='<table><thead><tr><th>Data</th><th>Cliente</th><th>Município</th><th>Versão</th><th>Colab.</th><th>Valor mensal</th><th>Emitida por</th></tr></thead><tbody>'+q.docs.map(function(d){var x=d.data();return'<tr><td class="c">'+h(String(x.data||"").split("-").reverse().join("/"))+"</td><td>"+h(x.cliente)+"</td><td>"+h(x.municipio)+'</td><td class="c">v'+h(x.versao)+'</td><td class="c">'+h(x.colab)+'</td><td class="n">'+brl(x.total||0)+"</td><td>"+h(x.emitida_por)+"</td></tr>"}).join("")+"</tbody></table>"},onErr);
+    db.collection("pendencias").orderBy("em","desc").limit(40).onSnapshot(function(q){
+      if(q.empty)return;
+      $("pend-list").innerHTML=q.docs.map(function(d){var x=d.data();return'<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0"><span><strong>'+h(x.municipio)+"/"+h(x.uf)+"</strong> · "+h(x.registro||"sem nº de registro")+" · pedido por "+h(x.pedido_por||"—")+(x.arquivo?' · <a href="/_blob/'+h(x.arquivo)+'" target="_blank" rel="noopener">'+h(x.arquivo_nome||"PDF")+"</a>":"")+'</span><span class="pill">'+h(x.status)+"</span></div>"}).join("")},onErr);
+  });
+}
+start();
+})();
+</script>
+
+</body></html>

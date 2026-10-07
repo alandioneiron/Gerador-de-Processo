@@ -14,7 +14,8 @@
     "validate:release": "node scripts/validate-data.mjs data --strict",
     "test": "node --test \"tests/unit/*.test.mjs\"",
     "test:e2e": "playwright test",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "importar-artefato": "node scripts/importar-artefato.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",
