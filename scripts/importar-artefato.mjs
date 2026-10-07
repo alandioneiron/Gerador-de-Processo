@@ -77,6 +77,31 @@ function redigirIndex(html) {
 }
 
 const json = (v) => JSON.stringify(v, null, 2) + "\n";
+
+/* O validador exige ids "minusculas-com-hifen"; o banco do artefato pode usar outro formato. Os ids só servem
+   de chave interna (o município vai para a proposta pelo nome), então são normalizados aqui, ajustando a
+   referência municipio.cct. Ids que ficariam repetidos param a importação. */
+function slugId(id) {
+  return String(id).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function normalizarIds(dados) {
+  const renomear = (obj, tipo) => {
+    const out = {}, origem = {};
+    for (const [id, v] of Object.entries(obj)) {
+      const novoId = slugId(id);
+      if (!novoId) throw new Error(`${tipo}: id "${id}" fica vazio ao normalizar`);
+      if (Object.hasOwn(out, novoId)) throw new Error(`${tipo}: os ids "${origem[novoId]}" e "${id}" ficariam iguais ("${novoId}")`);
+      out[novoId] = v; origem[novoId] = id;
+      if (novoId !== id) console.log(`  id ${tipo}: "${id}" → "${novoId}"`);
+    }
+    return out;
+  };
+  const ccts = renomear(dados.ccts, "ccts");
+  const municipios = renomear(dados.municipios, "municipios");
+  for (const m of Object.values(municipios))
+    if (m && typeof m.cct === "string" && !Object.hasOwn(ccts, m.cct) && Object.hasOwn(ccts, slugId(m.cct))) m.cct = slugId(m.cct);
+  return { ...dados, ccts, municipios };
+}
 const indexHtml = existsSync(join(pasta, "index.html")) ? ler("index.html").toString("utf8") : readFileSync("upstream/index.html", "utf8");
 
 if (fazer.includes("calc.js")) {
@@ -102,7 +127,7 @@ if (fazer.includes("tpl.js")) {
 }
 if (fazer.includes("cadastro.json")) {
   const c = JSON.parse(ler("cadastro.json").toString("utf8"));
-  const dados = { config: c.config ?? null, ccts: c.ccts ?? {}, municipios: c.municipios ?? {} };
+  const dados = normalizarIds({ config: c.config ?? null, ccts: c.ccts ?? {}, municipios: c.municipios ?? {} });
   writeFileSync("data/config.json", json(dados.config));
   writeFileSync("data/ccts.json", json(dados.ccts));
   writeFileSync("data/municipios.json", json(dados.municipios));
