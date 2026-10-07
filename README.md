@@ -5,7 +5,7 @@ Site da equipe comercial do Grupo Neoguard. O vendedor preenche cliente, municí
 - a **proposta** no modelo Neoguard, em PDF (pronta para o cliente) e em .docx (para editar);
 - a **memória de cálculo**, em .xlsx. É uso interno: não envie ao cliente.
 
-- **Site:** https://alandioneiron.github.io/Gerador-de-Processo/ (passa a valer depois da primeira release)
+- **Site:** https://propostas.neoguard.com.br (passa a valer depois da primeira release)
 - **Versão em uso:** aparece no topo da página, por exemplo `v1.0.0`.
 - **Repositório:** https://github.com/alandioneiron/Gerador-de-Processo
 
