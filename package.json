@@ -18,8 +18,8 @@
     "importar-artefato": "node scripts/importar-artefato.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.0",
-    "jszip": "3.10.1",
+    "@playwright/test": "1.63.0",
+    "jszip": "3.10.2",
     "pdf-lib": "1.17.1"
   }
 }

@@ -24,6 +24,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). 
 - Convertido de artefato do Claude para site estático. O cadastro, que antes ficava num banco do Claude, passou para arquivos JSON versionados.
 - Modelos da proposta em `assets/`: `modelo-proposta.docx` e `modelo-proposta.pdf`. O DOCX traz os marcadores `Cliente: {{CLIENTE}}`, `{{DATA_EXTENSO}}` e `{{TABELA_DE_PRECOS}}` no lugar dos dados e da tabela de preços do cliente de exemplo.
 - Downloads feitos pelo próprio navegador, sem serviço externo.
+- Dependências atualizadas: actions/checkout v7, actions/setup-node v7, actions/upload-artifact v6, actions/upload-pages-artifact v5 + actions/deploy-pages v5, @playwright/test 1.63.0 e jszip 3.10.2.
 
 ### Segurança
 
