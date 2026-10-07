@@ -72,9 +72,9 @@ O site responde em **https://propostas.neoguard.com.br**. O endereço padrão `a
 | Onde | O quê | Situação |
 |---|---|---|
 | GitHub → Settings → Pages → Custom domain | `propostas.neoguard.com.br` | Feito (gravado antes do DNS, como o GitHub recomenda) |
-| DNS do neoguard.com.br (HostGator → cPanel → Editor de Zona) | CNAME `propostas` → `alandioneiron.github.io` | A fazer |
-| Conta do GitHub → Settings → Pages → Add a domain | TXT `_github-pages-challenge-alandioneiron.neoguard.com.br` com o valor mostrado pelo GitHub | Recomendado: impede que outra conta use subdomínios da Neoguard |
-| GitHub → Settings → Pages | **Enforce HTTPS** | Depois que o certificado sair (minutos a algumas horas após o DNS) |
+| DNS do neoguard.com.br (HostGator → cPanel → Editor de Zona) | CNAME `propostas` → `alandioneiron.github.io` | Feito em 07/10/2026 |
+| Conta do GitHub → Settings → Pages → Add a domain | TXT `_github-pages-challenge-alandioneiron.neoguard.com.br` com o valor mostrado pelo GitHub | TXT criado em 07/10/2026; aguardando o GitHub confirmar (até 24 h) e clicar em **Verify** se continuar "Unverified". Impede que outra conta use subdomínios da Neoguard |
+| GitHub → Settings → Pages | **Enforce HTTPS** | Depois da primeira Release: o GitHub só emite o certificado quando o site tem uma publicação |
 
 Como a publicação é feita pelo GitHub Actions, o domínio fica guardado nas configurações do Pages e não precisa de arquivo `CNAME` no site.
 
