@@ -1,0 +1,27 @@
+{
+  "teste-limpeza-2026": {
+    "_aviso": "CONVENÇÃO FICTÍCIA, só para testes automáticos.",
+    "nome": "CCT Fictícia de Limpeza e Conservação",
+    "registro": "XX000000/2026",
+    "vigencia": "01/01/2026 a 31/12/2099",
+    "vigencia_fim": "2099-12-31",
+    "sm": 1500,
+    "acumulo": 0.2,
+    "hnot": 7,
+    "adn": 0.2,
+    "enc": 0.7,
+    "vr": 30,
+    "vr_desc": 1,
+    "premio": 100,
+    "cesta": 150,
+    "ppr": 600,
+    "social": 20,
+    "saude": 50,
+    "intervalo_h": 1,
+    "pisos": [
+      { "id": "asg", "nome": "Auxiliar de Serviços Gerais", "piso": 2000, "kit": 40, "tipo": "limp" },
+      { "id": "porteiro", "nome": "Porteiro (controle de acesso)", "piso": 2500, "kit": 50, "tipo": "mo", "obs": "Observação fictícia de piso." },
+      { "id": "encarregada", "nome": "Encarregada de Limpeza", "piso": 3000, "kit": null, "tipo": "limp" }
+    ]
+  }
+}

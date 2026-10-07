@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+  # Versões das actions usadas nos workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    labels:
+      - dependências
+    open-pull-requests-limit: 5
+
+  # Dependências de desenvolvimento (Playwright, jszip, pdf-lib)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    labels:
+      - dependências
+    open-pull-requests-limit: 5

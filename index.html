@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>Gerador de Propostas Facilities</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: coluna única de trabalho (4 etapas na ordem em que a proposta é montada) + resultado fixo ao final; preto e dourado do papel timbrado Neoguard */
+:root{--bg:#F2F2EF;--surface:#FFFFFF;--ink:#1C1B18;--muted:#6A675F;--line:#D8D5CC;--gold:#8E6A1E;--gold-soft:#F3EBD8;--dark:#1F1F1F;--on-dark:#F5F1E6;--bad:#A3271B;--bad-soft:#FBE9E6;--warn:#8A5A00;--warn-soft:#FFF3D6;--ok:#1E6B3A;--ok-soft:#E3F3E8;
+--font:"Archivo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141412;--surface:#1E1D1A;--ink:#ECE9E0;--muted:#A19D92;--line:#3A3832;--gold:#D3A94F;--gold-soft:#2E2817;--dark:#0C0C0B;--on-dark:#F5F1E6;--bad:#FF8E80;--bad-soft:#3A1A16;--warn:#F2C25C;--warn-soft:#33290F;--ok:#7FD39B;--ok-soft:#14301E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141412;--surface:#1E1D1A;--ink:#ECE9E0;--muted:#A19D92;--line:#3A3832;--gold:#D3A94F;--gold-soft:#2E2817;--dark:#0C0C0B;--on-dark:#F5F1E6;--bad:#FF8E80;--bad-soft:#3A1A16;--warn:#F2C25C;--warn-soft:#33290F;--ok:#7FD39B;--ok-soft:#14301E;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:0 56px;display:flex;flex-direction:column;gap:18px}
+header.top{background:var(--dark);color:var(--on-dark);border-bottom:3px solid var(--gold);margin-bottom:18px}
+header.top .in{max-width:980px;margin:0 auto;padding:18px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+header.top h1{font-size:20px;font-weight:700;margin:0;letter-spacing:.01em;text-wrap:balance}
+header.top .sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#C9B27A}
+h2{font-size:16px;font-weight:700;margin:0;text-wrap:balance}
+h2 small{font-weight:500;color:var(--muted);font-size:13px;margin-left:6px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 9px;min-width:0;width:100%}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+label.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink)}
+label.chk input{width:auto}
+button{font:inherit;font-weight:600;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;cursor:pointer}
+button.primary{background:var(--dark);color:var(--on-dark);border-color:var(--dark)}
+button.gold{background:var(--gold);color:var(--surface);border-color:var(--gold)}
+button.link{border:none;background:none;color:var(--bad);padding:4px 0;font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.note{font-size:13px;color:var(--muted);margin:0}
+.box{border-radius:4px;padding:10px 12px;font-size:14px}
+.box.bad{background:var(--bad-soft);color:var(--bad)}
+.box.warn{background:var(--warn-soft);color:var(--warn)}
+.box.ok{background:var(--ok-soft);color:var(--ok)}
+.box.info{background:var(--gold-soft);color:var(--ink)}
+.box ul{margin:4px 0 0;padding-left:18px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px;font-size:13px}
+.kv b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.posto{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.posto .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.posto .hd strong{font-size:14px}
+.posto .price{font-variant-numeric:tabular-nums;font-weight:700}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{background:var(--dark);color:var(--on-dark);font-weight:600;text-align:center;padding:7px 8px;font-size:12px}
+td{border:1px solid var(--line);padding:7px 8px}
+td.n{text-align:right;white-space:nowrap}td.c{text-align:center}
+tr.grp td{background:var(--gold-soft);font-weight:700}
+tr.sub td{font-weight:700;text-align:right}
+tr.tot td{background:var(--dark);color:var(--on-dark);font-weight:700;text-align:right}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:99px;padding:2px 9px;background:var(--gold-soft);color:var(--gold)}
+footer{max-width:980px;margin:0 auto;padding:0 16px 32px;font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><div><div class="sub">Grupo Neoguard · Facilities</div><h1>Gerador de Propostas Facilities</h1></div><span class="sub"><span id="conn">Conectando…</span> · <span id="ver">dev</span></span></div></header>
+<div class="wrap">
+<div id="fatal" class="box bad" hidden></div>
+<div class="box info">Esta página só calcula com dados cadastrados e conferidos: convenção coletiva, ISS e vale-transporte do município. Se faltar algo, ela para e pede a informação. Nada é estimado. Quem preenche é responsável pelos dados: insira as informações corretas e conferidas na fonte (escopo do cliente, CCT, contabilidade, fornecedor).</div>
+
+<section>
+  <h2>1. Cliente e local do serviço</h2>
+  <div class="grid">
+    <label>Cliente (como sai na capa)<input id="f-cliente" placeholder="Ex.: Condomínio Residencial Solaris"></label>
+    <label>Aos cuidados de (opcional)<input id="f-ac" placeholder="Ex.: Sra. Ana Souza"></label>
+    <label>Município da prestação do serviço<select id="f-mun"><option value="">Carregando…</option></select></label>
+    <label>Data da proposta<input id="f-data" type="date"></label>
+    <label>Versão<input id="f-versao" type="number" min="1" step="1" value="1"></label>
+    <label>Emitida por<input id="f-por" placeholder="Seu nome"></label>
+  </div>
+  <div id="mun-info"></div>
+  <div id="pend-form" hidden>
+    <div class="box bad">Este município ainda não tem convenção coletiva, ISS e vale-transporte cadastrados. Não é possível calcular. Peça o cadastro enviando a CCT registrada (PDF do Mediador/MTE ou do sindicato). O município é liberado numa nova versão do gerador, assim que os parâmetros da convenção forem cadastrados.</div>
+    <div class="grid">
+      <label>Município<input id="p-cidade" placeholder="Ex.: Campinas"></label>
+      <label>UF<input id="p-uf" maxlength="2" placeholder="SP"></label>
+      <label>Sindicato / nº de registro da CCT (se souber)<input id="p-reg" placeholder="Ex.: SP001234/2026"></label>
+      <label>Cliente que motivou o pedido<input id="p-cli"></label>
+    </div>
+    <label>Observações (ISS do município, tarifa de ônibus, o que já souber e a fonte)<textarea id="p-obs" rows="2"></textarea></label>
+    <div class="row"><button class="primary" id="p-send">Copiar pedido de cadastro</button><span id="p-msg" class="note" role="status"></span></div>
+    <p class="note">O PDF da convenção vai anexado no e-mail do pedido.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Postos <small>um bloco por função e escala</small></h2>
+  <div id="postos"></div>
+  <div class="row"><button id="add-posto">+ Adicionar posto</button></div>
+</section>
+
+<section>
+  <h2>3. Materiais e equipamentos</h2>
+  <label class="chk"><input type="checkbox" id="f-mat-on"> Incluir materiais e/ou equipamentos na proposta (uma linha de valor global)</label>
+  <div id="mat-fields" hidden>
+    <div class="grid">
+      <label>Custo mensal dos materiais (R$, cotado)<input id="f-mat" type="number" min="0" step="0.01"></label>
+      <label>Investimento em equipamentos (R$, cotado)<input id="f-eq" type="number" min="0" step="0.01"></label>
+    </div>
+    <label>Descrição da linha na proposta<input id="f-mat-desc" placeholder="Ex.: Materiais de limpeza, enceradeira 350 mm, lavadora de alta pressão e 2 rádios HT – valor global mensal"></label>
+    <p class="note" id="mat-note">Use valores cotados com fornecedor. A página aplica reserva técnica nos materiais, amortização e manutenção nos equipamentos, BDI e tributos, conforme o cadastro.</p>
+  </div>
+</section>
+
+<section>
+  <h2>4. Conferência e emissão</h2>
+  <div id="issues"></div>
+  <div class="scroll"><div id="result"></div></div>
+  <div class="row">
+    <button class="gold" id="btn-pdf" disabled>Baixar proposta (PDF)</button>
+    <button id="btn-docx" disabled>Baixar proposta (.docx)</button>
+    <button id="btn-xlsx" disabled>Baixar memória de cálculo (.xlsx)</button>
+    <span id="emit-msg" class="note" role="status"></span>
+  </div>
+  <p class="note">A proposta sai no modelo Neoguard (capa, papel timbrado e páginas institucionais sem alteração); mudam cliente, data, tabela de preços e observações. O PDF sai pronto para enviar; o .docx fica para quando precisar editar. A memória de cálculo é interna: não envie ao cliente.</p>
+</section>
+
+<section>
+  <h2>Propostas emitidas neste navegador</h2>
+  <div class="scroll"><div id="hist"></div></div>
+  <p class="note">O histórico fica guardado só neste navegador e neste computador.</p>
+</section>
+</div>
+<footer>Grupo Neoguard · Facilities — uso interno da equipe comercial.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/calc.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

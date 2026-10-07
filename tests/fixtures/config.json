@@ -1,0 +1,17 @@
+{
+  "_aviso": "VALORES FICTÍCIOS, só para testes automáticos. Não usar em proposta.",
+  "dias": { "5x2": 22, "6x1": 26, "12x36": 15 },
+  "plant": 15,
+  "vtd": 0.06,
+  "seg": 10,
+  "aso": 8,
+  "trein": 15,
+  "matind": 20,
+  "bdi_adm": 0.05,
+  "bdi_luc": 0.08,
+  "pis": 0.0165,
+  "cofins": 0.076,
+  "res": 0.1,
+  "amort": 24,
+  "manut": 0.1
+}

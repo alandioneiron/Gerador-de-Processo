@@ -1,0 +1,137 @@
+name: Pedido de cadastro de CCT / município
+description: Solicitar o cadastro (ou a atualização) de uma CCT e dos dados de um município
+title: "[Cadastro] Município/UF - CCT "
+labels: ["cadastro-cct"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este formulário para pedir o cadastro de uma **CCT** e dos dados do **município** correspondente.
+        Preencha com atenção e **anexe o documento de origem**: os valores só entram no sistema com fonte conferida.
+        **Não inclua dados reais de clientes.**
+
+  - type: input
+    id: municipio
+    attributes:
+      label: Município
+      placeholder: Ribeirão Preto
+    validations:
+      required: true
+
+  - type: dropdown
+    id: uf
+    attributes:
+      label: UF
+      options:
+        - AC
+        - AL
+        - AP
+        - AM
+        - BA
+        - CE
+        - DF
+        - ES
+        - GO
+        - MA
+        - MT
+        - MS
+        - MG
+        - PA
+        - PB
+        - PR
+        - PE
+        - PI
+        - RJ
+        - RN
+        - RS
+        - RO
+        - RR
+        - SC
+        - SP
+        - SE
+        - TO
+    validations:
+      required: true
+
+  - type: input
+    id: registro-cct
+    attributes:
+      label: Registro da CCT no Mediador
+      description: Número de registro no sistema Mediador (MTE), como aparece no documento.
+      placeholder: SP000000/2026
+    validations:
+      required: true
+
+  - type: input
+    id: vigencia
+    attributes:
+      label: Vigência da CCT
+      description: Data de início e de fim.
+      placeholder: 01/01/2026 a 31/12/2026
+    validations:
+      required: true
+
+  - type: input
+    id: iss-limpeza
+    attributes:
+      label: ISS - limpeza (item 7.10)
+      description: Alíquota em %, conforme a lei municipal.
+      placeholder: "5,00"
+    validations:
+      required: true
+
+  - type: input
+    id: iss-mao-de-obra
+    attributes:
+      label: ISS - mão de obra (item 17.05)
+      description: Alíquota em %, conforme a lei municipal.
+      placeholder: "5,00"
+    validations:
+      required: true
+
+  - type: input
+    id: tarifa-transporte
+    attributes:
+      label: Tarifa de transporte
+      description: Valor da passagem em R$ vigente no município.
+      placeholder: "5,50"
+    validations:
+      required: true
+
+  - type: textarea
+    id: fonte
+    attributes:
+      label: Fonte dos dados
+      description: Links ou referências de onde cada valor foi conferido (Mediador, lei municipal do ISS, tabela de tarifa).
+      placeholder: |
+        - CCT: https://...
+        - Lei do ISS: https://...
+        - Tarifa: https://...
+    validations:
+      required: true
+
+  - type: textarea
+    id: anexo
+    attributes:
+      label: Anexo - PDF da CCT
+      description: Arraste o PDF da CCT (e, se tiver, da lei do ISS e da tabela de tarifa) para dentro deste campo.
+    validations:
+      required: true
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Qualquer detalhe que ajude (cláusulas especiais, benefícios, categorias, prazo desejado).
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmacao
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não incluí dados reais de clientes neste pedido.
+          required: true
+        - label: Os valores acima foram conferidos nas fontes informadas.
+          required: true

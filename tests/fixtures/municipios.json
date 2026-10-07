@@ -1,0 +1,12 @@
+{
+  "cidade-teste-sp": {
+    "nome": "Cidade Teste",
+    "uf": "SP",
+    "cct": "teste-limpeza-2026",
+    "iss_limp": 0.05,
+    "iss_mo": 0.05,
+    "vt_dia": 10,
+    "vt_obs": "Tarifa fictícia: 2 conduções de R$ 5,00.",
+    "alertas": ["Alerta fictício de conferência."]
+  }
+}

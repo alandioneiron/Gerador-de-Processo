@@ -1,0 +1,147 @@
+name: Release → Produção
+
+# Única forma de publicar em produção (GitHub Pages): publicar uma Release com tag vX.Y.Z.
+# Pré-lançamentos (prerelease) são ignorados.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+# Nunca cancelar um deploy em andamento; releases seguidas entram em fila.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  testar:
+    name: Testar a Release
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Conferir o formato da tag (vX.Y.Z)
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error title=Tag inválida::A tag \"$TAG\" não segue o formato vX.Y.Z (exemplo: v1.0.0). Apague a Release e a tag e publique de novo com uma tag válida."
+            exit 1
+          fi
+          echo "Tag válida: $TAG"
+
+      - name: Baixar o código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Produção só com código que já passou por PR: o commit da tag precisa estar na main.
+      - name: Conferir que a tag aponta para um commit da main
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error title=Tag fora da main::A tag \"$TAG\" aponta para um commit que não está na main. Crie a Release a partir da main."
+            exit 1
+          fi
+          echo "Commit $GITHUB_SHA está na main."
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Validar os dados em modo estrito (cadastro não pode estar vazio)
+        run: npm run validate:release
+
+      - name: Testes unitários
+        run: npm test
+
+      - name: Instalar o Chromium do Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes E2E (Playwright)
+        run: npm run test:e2e
+
+      - name: Guardar relatório e evidências da falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-falha
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: Gerar o site
+    if: ${{ !github.event.release.prerelease }}
+    needs: testar
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # configure-pages consulta/configura o site do Pages.
+      pages: write
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar o site (dist/)
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: npm run build
+
+      - name: Configurar o GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar o site para o Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publicar em produção
+    if: ${{ !github.event.release.prerelease }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Resumo
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          {
+            echo "## Publicado em produção"
+            echo
+            echo "- Versão: \`${TAG}\`"
+            echo "- Endereço: ${PAGE_URL}"
+            echo
+            echo "> A versão publicada aparece no topo da página (ao lado do status de conexão)."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,67 @@
+name: Problema (bug)
+description: Algo não funcionou como esperado no Gerador de Propostas
+title: "[Problema] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por avisar. Quanto mais detalhes, mais rápido conseguimos corrigir.
+        **Não cole dados reais de clientes** (nomes, CNPJs, contatos). Use valores fictícios.
+
+  - type: textarea
+    id: o-que-fez
+    attributes:
+      label: O que você fez?
+      description: Passo a passo, do início até o problema (município, CCT, opções marcadas, botão clicado).
+      placeholder: |
+        1. Abri o site
+        2. Escolhi o município X e a CCT Y
+        3. Cliquei em "Gerar PDF"
+    validations:
+      required: true
+
+  - type: textarea
+    id: o-que-esperava
+    attributes:
+      label: O que você esperava que acontecesse?
+    validations:
+      required: true
+
+  - type: textarea
+    id: o-que-aconteceu
+    attributes:
+      label: O que aconteceu de fato?
+      description: Descreva o erro. Se puder, arraste um print aqui para dentro do campo.
+    validations:
+      required: true
+
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do site
+      description: Aparece no topo da página, ao lado do status de conexão (por exemplo, v1.2.0 ou dev).
+      placeholder: v1.2.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: formato
+    attributes:
+      label: Em qual saída o problema aparece?
+      options:
+        - Na tela (cálculo / formulário)
+        - No PDF
+        - No DOCX
+        - Em mais de um deles
+        - Não sei
+    validations:
+      required: false
+
+  - type: input
+    id: navegador
+    attributes:
+      label: Navegador e sistema
+      placeholder: Chrome 130 no Windows 11
+    validations:
+      required: false

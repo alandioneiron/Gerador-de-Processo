@@ -1,0 +1,24 @@
+{
+  "name": "gerador-de-processo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Gerador de Propostas Facilities – Grupo Neoguard (site estático para a equipe comercial)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node scripts/serve.mjs --port 8080",
+    "start:teste": "node scripts/serve.mjs --port 8080 --data-dir tests/fixtures",
+    "validate": "node scripts/validate-data.mjs data",
+    "validate:release": "node scripts/validate-data.mjs data --strict",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test:e2e": "playwright test",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "jszip": "3.10.1",
+    "pdf-lib": "1.17.1"
+  }
+}

@@ -1,0 +1,125 @@
+name: CI
+
+# Roda a bateria de testes em todo Pull Request para a main e em todo push na main.
+# Merge na main NÃO publica em produção: apenas gera uma prévia do site (artifact).
+# Produção só sai por Release (ver release.yml).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Um PR novo cancela a execução anterior do mesmo PR; pushes na main nunca são cancelados.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validar:
+    name: Validação e testes unitários
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Validar os dados (data/)
+        run: npm run validate
+
+      - name: Testes unitários
+        run: npm test
+
+  e2e:
+    name: Testes E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar o Chromium do Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes E2E (Playwright)
+        run: npm run test:e2e
+
+      - name: Guardar relatório e evidências da falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-falha
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  previa:
+    name: Prévia do site
+    # Só depois do merge (push na main) e com tudo verde.
+    if: github.event_name == 'push'
+    needs: [validar, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Definir a versão da prévia (main-<commit curto>)
+        run: echo "RELEASE_TAG=main-$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
+
+      - name: Gerar o site (dist/)
+        run: npm run build
+
+      - name: Guardar a prévia como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-previa
+          path: dist/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
+      - name: Resumo
+        run: |
+          {
+            echo "## Prévia do site gerada"
+            echo
+            echo "- Versão da prévia: \`${RELEASE_TAG}\`"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Artifact: **site-previa** (guardado por 14 dias)"
+            echo
+            echo "> Esta é apenas uma **prévia** para conferência. O merge na \`main\` **não** publica em produção."
+            echo "> A produção (GitHub Pages) só é atualizada quando uma **Release** nova é publicada."
+          } >> "$GITHUB_STEP_SUMMARY"
