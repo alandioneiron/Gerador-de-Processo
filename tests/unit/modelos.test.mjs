@@ -13,9 +13,6 @@ const DOCX = arquivo("assets/modelo-proposta.docx");
 const PDF = arquivo("assets/modelo-proposta.pdf");
 const APP = arquivo("js/app.js");
 
-// Dados de cliente real que já saíram do modelo. Se aparecerem de novo, a proposta vai sair com um cliente antigo.
-const DADOS_REAIS_PROIBIDOS = ["Maison", "9.340", "12.426", "21.766"];
-
 // Marcadores que o app substitui: "Cliente: {{CLIENTE}}" (capa) e "{{DATA_EXTENSO}}" (assinatura).
 // A 1ª tabela inteira é trocada pela tabela de preços, então marcadores dentro dela não chegam à proposta.
 const MARCADORES_TRATADOS = new Set(["{{CLIENTE}}", "{{DATA_EXTENSO}}"]);
@@ -58,15 +55,18 @@ describe("modelo DOCX", () => {
   });
 
   test("a primeira tabela é a tabela de preços (o app a substitui inteira)", async () => {
+    // scripts/importar-artefato.mjs troca a tabela de exemplo do artefato por este espaço reservado.
     const { tabela } = separarPrimeiraTabela(await documentoXml());
-    assert.match(tabela, /Total de Serviços/);
+    assert.match(tabela, /\{\{TABELA_DE_PRECOS\}\}/);
+    assert.doesNotMatch(tabela, /R\$\s?[1-9]/, "a tabela do modelo não pode trazer preços de exemplo");
   });
 
   test("não contém dados de cliente real", async () => {
+    // O modelo vem de uma proposta real: a capa só pode ter o marcador, e nenhum preço pode ficar fixo.
     const xml = await documentoXml();
-    for (const dado of DADOS_REAIS_PROIBIDOS) {
-      assert.ok(!xml.includes(dado), `dado de cliente real encontrado no modelo: "${dado}"`);
-    }
+    const clientes = [...xml.matchAll(/Cliente: ([^<]*)/g)].map((m) => m[1]).filter((c) => c !== "{{CLIENTE}}");
+    assert.deepEqual(clientes, [], "nome de cliente fixo no modelo");
+    assert.doesNotMatch(xml, /R\$\s?[1-9]/, "preço fixo no modelo");
   });
 
   test("marcadores de MK_CLI e MK_DATA do app existem no modelo", async () => {
