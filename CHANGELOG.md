@@ -18,6 +18,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). 
 - Documentação: README, CONTRIBUTING, referência de campos do cadastro e configuração do repositório no GitHub.
 - Sincronização com o artefato do C.O: `upstream/` guarda a última versão importada, `npm run importar-artefato` traz calc.js, modelos (higienizados) e `cadastro.json`, e `docs/SINCRONIZAR-ARTEFATO.md` traz o prompt para o chat do C.O. `CLAUDE.md` descreve o procedimento para o Claude Code.
 - Domínio do site: https://propostas.neoguard.com.br.
+- Importador normaliza ids do cadastro do artefato (sem acento, minúsculas e hífen), ajustando `municipio.cct`; testes do importador com um artefato fictício.
 
 ### Alterado
 
