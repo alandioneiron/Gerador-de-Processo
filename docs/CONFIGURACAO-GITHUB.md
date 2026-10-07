@@ -65,23 +65,20 @@ Os workflows declaram, cada um, só as permissões que precisam: no workflow de 
 
 ---
 
-## Depois: domínio neoguard.com.br
+## Domínio: propostas.neoguard.com.br
 
-O endereço padrão `alandioneiron.github.io/Gerador-de-Processo` funciona, mas o ideal é um endereço da Neoguard. Há duas opções.
+O site responde em **https://propostas.neoguard.com.br**. O endereço padrão `alandioneiron.github.io/Gerador-de-Processo` passa a redirecionar para ele.
 
-### Opção 1: subdomínio próprio (por exemplo, propostas.neoguard.com.br)
+| Onde | O quê | Situação |
+|---|---|---|
+| GitHub → Settings → Pages → Custom domain | `propostas.neoguard.com.br` | Feito (gravado antes do DNS, como o GitHub recomenda) |
+| DNS do neoguard.com.br (HostGator → cPanel → Editor de Zona) | CNAME `propostas` → `alandioneiron.github.io` | Feito em 07/10/2026 |
+| Conta do GitHub → Settings → Pages → Add a domain | TXT `_github-pages-challenge-alandioneiron.neoguard.com.br` com o valor mostrado pelo GitHub | TXT criado em 07/10/2026; aguardando o GitHub confirmar (até 24 h) e clicar em **Verify** se continuar "Unverified". Impede que outra conta use subdomínios da Neoguard |
+| GitHub → Settings → Pages | **Enforce HTTPS** | Depois da primeira Release: o GitHub só emite o certificado quando o site tem uma publicação |
 
-1. No painel de DNS de neoguard.com.br, crie um registro **CNAME**:
-   - Nome (host): `propostas`
-   - Valor (destino): `alandioneiron.github.io`
-2. No repositório, em **Settings**, **Pages**, no campo **Custom domain**, digite `propostas.neoguard.com.br` e clique em **Save**. Aguarde o GitHub verificar o DNS.
-3. Quando a opção aparecer, marque **Enforce HTTPS**. Ela só fica disponível depois que o certificado é emitido, o que leva alguns minutos.
+Como a publicação é feita pelo GitHub Actions, o domínio fica guardado nas configurações do Pages e não precisa de arquivo `CNAME` no site.
 
-Como a publicação é feita pelo GitHub Actions, o domínio fica guardado nas configurações do Pages e não precisa de arquivo `CNAME` no site. Recomenda-se também verificar o domínio em **Settings** da conta → **Pages** → **Add a domain**, o que impede que outra conta do GitHub use o mesmo subdomínio.
-
-### Opção 2: link no site WordPress
-
-Crie uma página ou um botão no site da Neoguard apontando para o endereço do gerador. Não há configuração no GitHub para isso.
+Se o DNS mudar de provedor, recrie o CNAME no provedor novo antes de desligar o antigo. Se o CNAME sumir com o domínio ainda configurado no GitHub, o subdomínio fica exposto a uso por terceiros, e a verificação do domínio (linha 3 da tabela) protege contra isso.
 
 ---
 
