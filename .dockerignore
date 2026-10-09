@@ -1,0 +1,42 @@
+# Contexto de build das imagens do Portal (portal/deploy/Dockerfile.*): a raiz do repositório.
+# Tudo o que não precisa entrar na imagem fica de fora (menor, mais rápido e sem dados locais).
+
+# Controle de versão e ferramentas
+.git
+.github
+.claude
+
+# Dependências e artefatos de build (cada Dockerfile reinstala e recompila no próprio estágio)
+**/node_modules
+**/.venv
+**/venv
+**/dist
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+
+# Bancos locais e logs
+**/*.db
+**/*.sqlite3
+**/*.log
+
+# Testes e relatórios (o Gerador estático e o backend têm testes que não vão para a imagem)
+tests
+portal/backend/tests
+playwright-report
+test-results
+
+# Cadastro real nunca entra na imagem: no servidor ele chega por volume (CADASTRO_DIR)
+data
+
+# Segredos locais
+**/.env
+**/.env.*
+!**/.env.example
+
+# Documentação e scripts do repositório (não fazem parte do que roda no container)
+docs
+upstream
+scripts

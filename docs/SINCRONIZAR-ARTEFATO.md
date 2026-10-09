@@ -68,7 +68,7 @@ Procedimento completo em [`CLAUDE.md`](../CLAUDE.md). Em resumo:
    - copia o `calc.js` para `js/calc.js`;
    - converte o `modelo.js` em `assets/modelo-proposta.docx`, trocando o cliente de exemplo e a data pelos marcadores e a tabela de exemplo por `{{TABELA_DE_PRECOS}}`;
    - converte o `tpl.js` em `assets/modelo-proposta.pdf` e confere as 12 páginas;
-   - distribui o `cadastro.json` em `data/config.json`, `data/ccts.json` e `data/municipios.json` e roda o validador;
+   - distribui o `cadastro.json` em `cadastro-local/` (pasta fora do git) e roda o validador. Para o Portal, essa pasta é copiada para `/opt/portal-neoguard/cadastro/` no servidor. Para testar local: `npm run start:local`;
    - guarda `index.html` e `NOTAS-DA-VERSAO.md` em `upstream/` e atualiza `upstream/artefato.json`.
 4. Porta à mão o que mudou no `index.html` do artefato (`git diff upstream/index.html`) para `index.html` e `js/app.js`. O site não tem `window.claude`: o banco virou `data/*.json`, os downloads são do navegador e o histórico é local.
 5. Campo novo no banco: atualiza o validador, a referência de campos do `CONTRIBUTING.md` e, se mexer no cálculo, os testes.

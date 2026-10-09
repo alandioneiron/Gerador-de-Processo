@@ -15,7 +15,8 @@ Responda em PT-BR.
 
 ## Mapa
 - `index.html` + `js/app.js`: a página (sem `window.claude`). `js/calc.js`: cálculo puro, cópia fiel do artefato.
-- `data/*.json`: cadastro (parâmetros, CCTs, municípios). Validação em `scripts/validate-data.mjs`.
+- `data/*.json`: só o esqueleto vazio (um teste garante isso). O cadastro real vai para `cadastro-local/` (ignorada) e para `/opt/portal-neoguard/cadastro/` no servidor. Validação em `scripts/validate-data.mjs`.
+- `portal/`: o Portal (backend FastAPI, frontend React, deploy Docker). Contrato da Fase 1 em `docs/portal/ESPEC-FASE1.md`.
 - `assets/modelo-proposta.docx|pdf`: modelos higienizados (marcadores `Cliente: {{CLIENTE}}`, `{{DATA_EXTENSO}}`, `{{TABELA_DE_PRECOS}}`).
 - `upstream/`: última versão sincronizada do artefato (`artefato.json` com a versão e os hashes, `index.html`, `calc.js`, notas).
 - `tests/unit`, `tests/e2e`, `tests/fixtures` (dados fictícios).

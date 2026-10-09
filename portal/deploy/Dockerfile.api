@@ -1,0 +1,43 @@
+# Portal Neoguard — imagem da API (FastAPI + Alembic).
+# Contexto de build: a RAIZ do repositório (veja o .dockerignore da raiz).
+#   docker build -f portal/deploy/Dockerfile.api -t portal-neoguard-api .
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore
+
+# Usuário sem privilégios: a API nunca roda como root.
+RUN groupadd --gid 10001 portal \
+ && useradd --uid 10001 --gid portal --home-dir /app --no-create-home --shell /usr/sbin/nologin portal
+
+WORKDIR /app
+
+# Dependências primeiro: a camada só é refeita quando o requirements.txt muda.
+COPY portal/backend/requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# Código da API (app/, alembic.ini, alembic/). Sem testes: o .dockerignore os deixa de fora.
+COPY --chown=portal:portal portal/backend/ /app/
+
+# Versão em uso (o /api/saude devolve este valor). Fica no fim para que um commit novo não
+# invalide o cache da camada de dependências.
+ARG GIT_SHA=dev
+ENV GIT_SHA=${GIT_SHA}
+LABEL com.neoguard.projeto="portal-neoguard" \
+      com.neoguard.servico="api" \
+      org.opencontainers.image.revision="${GIT_SHA}"
+
+USER portal
+
+EXPOSE 8000
+
+# 60 s de carência: no primeiro start o Alembic ainda está criando as tabelas.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
+  CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/saude', timeout=4)"]
+
+# Migra o banco e sobe a API. A porta 8000 não é publicada no servidor: só o Nginx (rede interna
+# do compose) chega nela, por isso o --forwarded-allow-ips="*" é seguro e faz o X-Forwarded-* valer.
+ENTRYPOINT ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'"]

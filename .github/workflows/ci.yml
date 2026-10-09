@@ -76,6 +76,78 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  # ---- Portal Neoguard (portal/) -----------------------------------------------------------
+  # Rodam sempre (sem filtro de caminho): assim nenhum check obrigatório fica "pendente" e o
+  # contrato do Portal é conferido em todo PR. Ver docs/portal/ESPEC-FASE1.md.
+  portal-backend:
+    name: Portal — backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: portal/backend/requirements*.txt
+
+      - name: Instalar dependências
+        run: pip install -r portal/backend/requirements.txt -r portal/backend/requirements-dev.txt
+
+      - name: Testes do backend (pytest)
+        working-directory: portal/backend
+        run: python -m pytest
+
+  portal-frontend:
+    name: Portal — frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: portal/frontend
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: portal/frontend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Testes do frontend
+        run: npm test -- --run
+
+      - name: Build do frontend
+        run: npm run build
+
+  portal-docker:
+    name: Portal — imagens Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      # Só constrói (nada é publicado). O contexto é a raiz do repositório.
+      - name: Construir a imagem da API
+        run: docker build -f portal/deploy/Dockerfile.api --build-arg GIT_SHA="$GITHUB_SHA" -t portal-neoguard-api:ci .
+
+      - name: Construir a imagem do Nginx (SPA + Gerador)
+        run: docker build -f portal/deploy/Dockerfile.web --build-arg GIT_SHA="$GITHUB_SHA" -t portal-neoguard-web:ci .
+
+      # Sobe a pilha toda num projeto descartável e testa /, /api/saude e /propostas/.
+      # As imagens vêm do cache dos dois builds acima.
+      - name: Teste de fumaça da pilha (docker compose)
+        run: bash portal/deploy/smoke.sh
+
   previa:
     name: Prévia do site
     # Só depois do merge (push na main) e com tudo verde.

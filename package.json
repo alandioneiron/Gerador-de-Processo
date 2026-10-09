@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node scripts/serve.mjs --port 8080",
     "start:teste": "node scripts/serve.mjs --port 8080 --data-dir tests/fixtures",
+    "start:local": "node scripts/serve.mjs --port 8080 --data-dir cadastro-local",
     "validate": "node scripts/validate-data.mjs data",
     "validate:release": "node scripts/validate-data.mjs data --strict",
     "test": "node --test \"tests/unit/*.test.mjs\"",

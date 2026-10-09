@@ -7,3 +7,7 @@ test-results/
 Thumbs.db
 .DS_Store
 .claude/worktrees/
+cadastro-local/
+portal/backend/.venv/
+*.db
+__pycache__/

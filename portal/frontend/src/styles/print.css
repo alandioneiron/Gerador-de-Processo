@@ -1,0 +1,174 @@
+/* Impressão A4 (rota /fichas/:id/imprimir). O navegador salva em PDF.
+   Cabeçalho repetido por página: <thead> da tabela de impressão.
+   Rodapé e "Página X de Y": caixas de margem do @page (Chrome/Edge 131+). */
+
+@page {
+  size: A4;
+  margin: 12mm 11mm 16mm 11mm;
+
+  @bottom-left {
+    content: 'Grupo Neoguard  ·  Documento interno de implantação  ·  Não reproduzir sem autorização';
+    font-family: Arial, sans-serif;
+    font-size: 8pt;
+    color: #5a5a5a;
+    vertical-align: top;
+    padding-top: 3mm;
+    border-top: 0.5pt solid #bdbdbd;
+  }
+
+  @bottom-right {
+    content: 'Página ' counter(page) ' de ' counter(pages);
+    font-family: Arial, sans-serif;
+    font-size: 8pt;
+    color: #5a5a5a;
+    vertical-align: top;
+    padding-top: 3mm;
+    border-top: 0.5pt solid #bdbdbd;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .topo,
+  .impressao-barra,
+  .nao-imprimir,
+  .rodape-etapa,
+  .impressao-rodape-tela {
+    display: none !important;
+  }
+
+  .pagina {
+    max-width: none;
+    padding: 0;
+  }
+
+  .impressao-folha {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .impressao-tabela > thead {
+    display: table-header-group;
+  }
+
+  .ficha {
+    border: none;
+    padding: 0;
+    font-size: 9.5pt;
+  }
+
+  .faixa-etapa {
+    break-after: avoid;
+    margin-top: 12pt;
+  }
+
+  .secao {
+    margin-top: 9pt;
+  }
+
+  .secao-titulo {
+    break-after: avoid;
+    font-size: 10.5pt;
+  }
+
+  .secao-titulo .num {
+    font-size: 10.5pt;
+  }
+
+  .nota {
+    break-after: avoid;
+    font-size: 8pt;
+  }
+
+  .tabela-ficha tr,
+  .grade-campos .celula,
+  .aviso-docx,
+  .travas-duas,
+  .assinaturas {
+    break-inside: avoid;
+  }
+
+  .tabela-ficha thead {
+    display: table-header-group;
+  }
+
+  .tabela-ficha {
+    font-size: 8pt;
+  }
+
+  .tabela-ficha th {
+    font-size: 7.5pt;
+    padding: 2pt 2pt;
+  }
+
+  .tabela-ficha td {
+    height: 6.2mm;
+    padding: 1pt 3pt;
+  }
+
+  .tabela-ficha td .valor,
+  .celula .valor {
+    font-size: 8.5pt;
+  }
+
+  .celula {
+    min-height: 10mm;
+    padding: 2pt 5pt 3pt;
+  }
+
+  .celula .rotulo {
+    font-size: 6.5pt;
+  }
+
+  .faixa-etapa .titulo {
+    font-size: 12pt;
+  }
+
+  .faixa-etapa .resp {
+    font-size: 9.5pt;
+  }
+
+  .opcoes-linha,
+  .linha-rotulo,
+  .marcas-grade {
+    font-size: 9pt;
+  }
+
+  .marcas-grade {
+    gap: 2pt 14pt;
+  }
+
+  .opcoes-linha,
+  .linha-rotulo,
+  .marcas-grade > div,
+  .bloco-status .item {
+    break-inside: avoid;
+  }
+
+  .fluxo {
+    font-size: 8pt;
+    gap: 1pt 3pt;
+  }
+
+  .tabela-scroll {
+    overflow: visible;
+  }
+
+  .assinaturas {
+    margin-top: 22pt;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

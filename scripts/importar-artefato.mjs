@@ -6,11 +6,11 @@
 //   --tudo     reprocessa todos os arquivos, mesmo os que não mudaram
 // O que é mecânico vai direto para o lugar certo:
 //   calc.js → js/calc.js;  modelo.js → assets/modelo-proposta.docx (higienizado);
-//   tpl.js → assets/modelo-proposta.pdf;  cadastro.json → data/config.json, ccts.json, municipios.json
+//   tpl.js → assets/modelo-proposta.pdf;  cadastro.json → cadastro-local/ (config, ccts, municipios; fora do git — vai para o servidor)
 // O index.html do artefato NÃO é copiado: o site tem sua própria versão (js/app.js + index.html, sem o
 // runtime do Claude). Ele é guardado em upstream/index.html, e o `git diff upstream/` mostra o que portar.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, writeFileSync, copyFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, copyFileSync } from "node:fs";
 import { join } from "node:path";
 import JSZip from "jszip";
 import { PDFDocument } from "pdf-lib";
@@ -128,11 +128,14 @@ if (fazer.includes("tpl.js")) {
 if (fazer.includes("cadastro.json")) {
   const c = JSON.parse(ler("cadastro.json").toString("utf8"));
   const dados = normalizarIds({ config: c.config ?? null, ccts: c.ccts ?? {}, municipios: c.municipios ?? {} });
-  writeFileSync("data/config.json", json(dados.config));
-  writeFileSync("data/ccts.json", json(dados.ccts));
-  writeFileSync("data/municipios.json", json(dados.municipios));
+  // O cadastro real (BDI, encargos) nunca vai para o git: fica em cadastro-local/ (ignorada) e segue para o servidor.
+  mkdirSync("cadastro-local", { recursive: true });
+  writeFileSync("cadastro-local/config.json", json(dados.config));
+  writeFileSync("cadastro-local/ccts.json", json(dados.ccts));
+  writeFileSync("cadastro-local/municipios.json", json(dados.municipios));
+  if (existsSync("data/site.json") && !existsSync("cadastro-local/site.json")) copyFileSync("data/site.json", "cadastro-local/site.json");
   const r = validateData(dados, { strict: true });
-  console.log(`✓ data/*.json atualizados: ${Object.keys(dados.ccts).length} CCT(s), ${Object.keys(dados.municipios).length} município(s); validação: ${r.errors.length} erro(s), ${r.warnings.length} aviso(s)`);
+  console.log(`✓ cadastro-local/*.json atualizados (fora do git; copiar para /opt/portal-neoguard/cadastro no servidor): ${Object.keys(dados.ccts).length} CCT(s), ${Object.keys(dados.municipios).length} município(s); validação: ${r.errors.length} erro(s), ${r.warnings.length} aviso(s)`);
   for (const e of r.errors) avisos.push(`Cadastro: ${e}`);
   for (const w of r.warnings) console.log(`  aviso: ${w}`);
 }

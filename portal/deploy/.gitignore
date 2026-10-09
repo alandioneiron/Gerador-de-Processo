@@ -1,0 +1,6 @@
+# O repositório é público: segredos e cadastro real do servidor nunca entram no git.
+.env
+.env.*
+!.env.example
+cadastro/
+*.sql.gz

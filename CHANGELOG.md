@@ -8,6 +8,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). 
 
 ### Adicionado
 
+- **Portal Neoguard — Fase 1** (`portal/`): Ficha de Implantação de Alarme Monitorado, fiel ao docx.
+  - As 3 etapas com as seções 1.1 a 3.3: tabelas editáveis, checkboxes em grade e campos condicionais.
+  - Travas e status automáticos: liberar instalação, concluir instalação e validação da CCON → ATIVO/MONITORADO.
+  - Pendências, histórico de quem fez o quê e impressão A4 com assinaturas.
+  - Botão **"Enviar por e-mail"**, que envia a ficha completa para ti@, suporte@ e aux.ti@, com Reply-To de quem preencheu.
+  - Backend FastAPI + PostgreSQL (287 testes), frontend React/Ant Design (141 testes), Nginx em Docker Compose (porta 8090, rede interna, sem login nesta fase) e o Gerador servido em `/propostas/` com o cadastro só no servidor.
+  - CI com os jobs do Portal (backend, frontend e imagens Docker com smoke test).
 - Cadastro em arquivos JSON versionados em `data/` (parâmetros Neoguard, convenções, municípios), com validador (`npm run validate`) que confere tipos, limites e ids.
 - Aviso de convenção vencida pelo campo `vigencia_fim`: a página mostra alerta e pede confirmação ao vendedor.
 - Pedido de cadastro de convenção para município fora da lista: copia o texto do pedido ou abre o e-mail, com o PDF da convenção anexado pelo vendedor.
