@@ -7,7 +7,8 @@ Responda em PT-BR.
 ## Regras do repositório
 - A `main` é protegida: toda mudança vai por branch + PR e só entra com os checks "Validação e testes unitários" e "Testes E2E" verdes. Merge na `main` não publica.
 - Produção só por Release `vX.Y.Z` publicada a partir da `main`, e só quando o Alan pedir.
-- O repositório e o site são públicos: nunca commitar dados de clientes reais, propostas emitidas ou planilhas internas.
+- O repositório é público: nunca commitar dados de clientes reais, propostas emitidas, planilhas internas nem o cadastro real (BDI, encargos, CCTs). O cadastro real fica só no servidor do Portal; `data/*.json` no git guarda apenas valores vazios ou fictícios.
+- Direção (09/10/2026): este repositório vira o Portal Neoguard (FastAPI + React/Ant Design + PostgreSQL + Nginx, Docker no 172.16.100.35), com login pelo AD local (LDAPS), MFA para acesso de fora da rede e acesso pela internet. Primeiro módulo: a Ficha de Implantação de Alarme Monitorado. Depois: o Gerador como módulo "Propostas". O GitHub Pages não será usado.
 - Toda mudança atualiza o `CHANGELOG.md` (seção "Não publicado") e, se afetar fluxo, campos ou configuração, o `CONTRIBUTING.md`, o `README.md` ou `docs/`.
 - Antes do PR: `npm test`, `npm run test:e2e` e `npm run validate` (`validate:release` quando o cadastro entrar).
 - `gh` fica em `C:\Users\Alan\tools\gh\bin\gh.exe`, caso não esteja no PATH do terminal.

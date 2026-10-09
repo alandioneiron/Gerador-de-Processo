@@ -7,14 +7,14 @@ Este repositório é a versão publicada para os vendedores (https://propostas.n
 O chat do C.O não consegue enviar nada ao GitHub: ele roda em outra conta do Claude, sem git. Por isso o caminho é:
 
 ```
-C.O muda o artefato → o chat dele publica a versão + cadastro.json + NOTAS-DA-VERSAO.md
+C.O muda o artefato → o chat dele publica a versão + NOTAS-DA-VERSAO.md e entrega o cadastro.json só para download
   → C.O avisa o Alan ("pronto para o GitHub")
   → Alan pede ao Claude Code nesta pasta: "C.O terminou, sincroniza o artefato"
   → Claude Code lê o artefato, importa, testa e abre o PR sync/artefato-<versão>
   → CI verde → merge na main → (quando o Alan quiser) Release vX.Y.Z → site atualizado
 ```
 
-O banco do artefato (parâmetros, CCTs, municípios) só é legível pela conta do C.O. Por isso o chat dele publica uma cópia em `cadastro.json` junto com o artefato.
+O banco do artefato (parâmetros, CCTs, municípios) só é legível pela conta do C.O. Por isso o chat dele gera uma cópia em `cadastro.json` para download. O C.O manda esse arquivo ao Alan por canal interno. O cadastro (BDI, encargos) NÃO vai para o artefato, que é público, nem para o git: fica só no servidor do Portal.
 
 ## 1. Prompt para o chat do C.O (colar uma vez, no chat que criou o artefato)
 
@@ -36,14 +36,16 @@ consegue ler o banco de dados daqui. Em toda rodada de mudanças, siga estas reg
    A primeira tabela do documento continua sendo a tabela de preços.
 4. Modelo PDF (tpl.js): capa, área da tabela e data em branco (o código desenha por cima). Se mudar
    a quantidade ou a ordem das páginas (hoje são 12), descreva nas notas.
-5. Ao terminar cada rodada, publique junto com o artefato estes dois arquivos:
-   a) cadastro.json com o conteúdo atual do banco, no formato
+5. Ao terminar cada rodada:
+   a) NÃO publique o cadastro no artefato (ele é público). Gere cadastro.json como ARQUIVO PARA
+      DOWNLOAD nesta conversa, para o C.O enviar ao Alan por canal interno, com o conteúdo atual
+      do banco, no formato
       {"config": {campos do documento config/neoguard},
        "ccts": {"<id do documento>": {campos}},
        "municipios": {"<id do documento>": {campos}}}
       Números continuam números (percentuais em fração, ex.: 0.05) e os ids são os originais.
       NÃO inclua as coleções "propostas" e "pendencias", porque têm dados de clientes.
-   b) NOTAS-DA-VERSAO.md com: data; o que mudou para o vendedor; o que mudou no código (telas,
+   b) Publique junto com o artefato o arquivo NOTAS-DA-VERSAO.md com: data; o que mudou para o vendedor; o que mudou no código (telas,
       validações, textos da proposta); campos novos ou alterados no banco (nome, significado,
       unidade, exemplo); se os modelos DOCX/PDF mudaram; pendências de CCT abertas
       (município/UF, registro, status — sem nome de cliente).
