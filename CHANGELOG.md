@@ -22,6 +22,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). 
 
 ### Alterado
 
+- O cadastro real (BDI, encargos, CCTs) não entra mais no git nem no artefato público. O chat do C.O entrega o `cadastro.json` só para download, e ele vai para o servidor do Portal.
+
 - Convertido de artefato do Claude para site estático. O cadastro, que antes ficava num banco do Claude, passou para arquivos JSON versionados.
 - Modelos da proposta em `assets/`: `modelo-proposta.docx` e `modelo-proposta.pdf`. O DOCX traz os marcadores `Cliente: {{CLIENTE}}`, `{{DATA_EXTENSO}}` e `{{TABELA_DE_PRECOS}}` no lugar dos dados e da tabela de preços do cliente de exemplo.
 - Downloads feitos pelo próprio navegador, sem serviço externo.
