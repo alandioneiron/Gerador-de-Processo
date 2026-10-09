@@ -138,7 +138,7 @@ Ações (cada uma gera evento no histórico e e-mail):
 |---|---|---|---|
 | `liberar-instalacao` | cadastro_em_preenchimento, pendencia_cadastral | liberado_para_instalacao | razão social, endereço, telefone, vendedor e data prevista preenchidos; ≥1 contato com nome e telefone principal; ≥1 usuário com nome e permissão; usuário com usa_app = "sim" precisa de email_app |
 | `concluir-instalacao` | em_instalacao, pendencia_tecnica | instalacao_concluida | modelo da central (e `modelo_outro` se "outro"), número de série, comunicação principal; ≥1 zona com ambiente e dispositivo; `usuarios_config.confirmado` = "sim"; partições preenchidas (nome da A) se áreas independentes = "sim" |
-| `validar-ccon` | aguardando_testes_ccon | ativo_monitorado (se aprovado) ou pendencia_tecnica (se reprovado) | aprovar exige: todos os itens da 3.1 e da 3.2 marcados, exceto `comunicacao_contingencia` (3.1 e 3.2) quando a contingência for "nao_possui" e `aplicativo` (3.2) quando nenhum usuário usa app; operador, data e hora preenchidos; os 5 itens = "ok" |
+| `validar-ccon` | aguardando_testes_ccon | ativo_monitorado (se aprovado) ou pendencia_tecnica (se reprovado) | aprovar exige: todos os itens da 3.1 e da 3.2 marcados, exceto `comunicacao_contingencia` (3.1 e 3.2) quando a contingência for "nao_possui" e `aplicativo` (3.1 e 3.2) quando nenhum usuário usa app; operador, data e hora preenchidos; os 5 itens = "ok" |
 | `registrar-pendencia` | qualquer, exceto ativo_monitorado | pendencia_cadastral (tipo "cadastral") ou pendencia_tecnica (tipo "tecnica") | descrição obrigatória; acrescenta uma linha em `pendencias` |
 | `retomar` | pendencia_cadastral → cadastro_em_preenchimento; pendencia_tecnica → em_instalacao (ou aguardando_testes_ccon se a instalação já tinha sido concluída) | — | — |
 
@@ -158,6 +158,7 @@ Toda escrita leva `autor` = `{ "nome": "...", "email": "..." }` (obrigatórios n
 | `PUT /api/fichas/{id}/etapa3` | `{ autor, versao, testes_tecnicos, testes_ccon }` | ficha completa |
 | `PUT /api/fichas/{id}/pendencias` | `{ autor, versao, pendencias }` | ficha completa |
 | `POST /api/fichas/{id}/acoes/{acao}` | `{ autor, versao, ...extras }` (`validar-ccon`: `validacao_ccon`; `registrar-pendencia`: `{ tipo, descricao, responsavel?, prazo? }`) | ficha completa, ou 422 `{ "detail": "...", "faltas": ["..."] }` |
+| `POST /api/fichas/{id}/acoes/enviar-email` | `{ autor, mensagem? }` (sem `versao`; qualquer status) | ficha completa + evento `enviou_email`; 502 `{detail}` se o SMTP falhar (aí não grava evento) |
 | `GET /api/fichas/{id}/travas` | — | `{ "liberar-instalacao": [faltas], "concluir-instalacao": [...], "validar-ccon": [...] }` (a tela mostra o que falta antes de clicar) |
 
 - `codigo` = `FI-<ano>-<numero com 4 dígitos>` (ex.: `FI-2026-0007`); `cliente` = razão social (ou nome fantasia).
@@ -166,7 +167,9 @@ Toda escrita leva `autor` = `{ "nome": "...", "email": "..." }` (obrigatórios n
 
 ## 5. E-mail
 
-- Disparado em `criou`, `liberar-instalacao`, `concluir-instalacao`, `validar-ccon` e `registrar-pendencia`.
+- **Botão "Enviar por e-mail"** (pedido do Alan): envio na hora da ficha completa (seções 1.1 a 1.8 sempre; Etapas 2, 3 e pendências quando preenchidas), com o layout do docx no corpo HTML.
+- Automáticos, em background: `liberar-instalacao`, `concluir-instalacao`, `validar-ccon` e `registrar-pendencia`. O `criou` não envia (ficha vazia só geraria ruído).
+- SMTP de produção: `mail.neoguard.com.br:465`, SSL, conta `envio@neoguard.com.br`, configurado no `.env` do servidor.
 - Para: `NOTIFICAR_PARA` (padrão `ti@neoguard.com.br,suporte@neoguard.com.br,aux.ti@neoguard.com.br`). Reply-To: o e-mail do autor.
 - Assunto: `[Ficha FI-2026-0007] <Ação> — <cliente>`. Corpo em texto simples + HTML curto: ação, status novo, autor, cliente, vendedor, data prevista, faltas/observações e link `PORTAL_URL/fichas/<id>`.
 - SMTP pelo `.env` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USUARIO`, `SMTP_SENHA`, `SMTP_REMETENTE`, `SMTP_TLS` = starttls|ssl|nenhum). Sem `SMTP_HOST`, não envia e registra no log ("e-mail não configurado"). Falha de envio nunca derruba a ação.
@@ -174,8 +177,14 @@ Toda escrita leva `autor` = `{ "nome": "...", "email": "..." }` (obrigatórios n
 
 ## 6. Telas (fidelidade ao docx)
 
+- **Visual da ficha = visual do docx** (referência renderizada do original):
+  - marinho `#1B2A4A` nas faixas de etapa, nos cabeçalhos de tabela e nos títulos;
+  - dourado `#B8963E` no número e no filete das seções;
+  - linhas alternadas `#F4F5F7`, bordas `#BDBDBD`, avisos com fundo `#F3ECDD`;
+  - fonte Arial;
+  - logo oficial (extraído do docx) no cabeçalho.
 - **Layout geral:**
-  - cabeçalho grafite com a marca "Grupo Neoguard" em dourado (paleta: dourado `#C9A24B`, grafite `#161616`, laranja `#E16B01`);
+  - barra do portal com o logo e a marca (dourado `#C9A24B`, laranja de atenção `#E16B01`);
   - menu: **Fichas de Implantação** e **Gerador de Propostas** (link para `/propostas/`);
   - aviso discreto no topo: "Acesso provisório sem login — use só na rede da Neoguard".
 - **Lista de fichas:** tabela com código, cliente, vendedor, data prevista, status (tag colorida) e atualizado em; busca, filtro por status e botão "Nova ficha".
@@ -202,4 +211,10 @@ Toda escrita leva `autor` = `{ "nome": "...", "email": "..." }` (obrigatórios n
 - Responsivo: utilizável em notebook e tablet (o técnico em campo).
 
 ## 7. Fora da Fase 1
+**Final do projeto, pedido do Alan:** tela "Configurações → E-mail de envio", restrita ao grupo admin do AD:
+- campos: servidor, porta, SSL/TLS, usuário, remetente, destinatários e senha;
+- a senha é só de escrita (nunca exibida de volta) e fica gravada criptografada no banco, com a chave no `.env`;
+- botão "Enviar e-mail de teste" e registro de quem alterou;
+- substitui as variáveis `SMTP_*` do `.env`, que valem até lá.
+
 Login AD/MFA/HTTPS público (Fase 2); exportação DOCX preenchida; alertas de prazo de pendência; integração CRM/ERP; histórico central de propostas do Gerador e upload de CCT.

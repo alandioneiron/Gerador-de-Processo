@@ -1,0 +1,98 @@
+# Portal Neoguard — pilha completa (Postgres + API + Nginx com SPA e Gerador).
+#
+# ISOLAMENTO: o servidor (172.16.100.35) também roda o Access-Control, que aciona hardware real.
+# Esta pilha usa projeto, rede e volumes próprios e publica só a porta ${PORTAL_PORTA:-8090}.
+# Use SEMPRE -p e -f explícitos (o deploy.sh já faz isso):
+#
+#   docker compose -p portal-neoguard -f portal/deploy/docker-compose.yml \
+#     --env-file /opt/portal-neoguard/.env <comando>
+#
+# O contexto de build é a RAIZ do repositório (../..), porque o Dockerfile.web também copia o
+# Gerador de Propostas (index.html, js/, assets/).
+
+name: portal-neoguard
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env}
+      TZ: America/Sao_Paulo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [portal]
+    logging: *logging
+
+  api:
+    build:
+      context: ../..
+      dockerfile: portal/deploy/Dockerfile.api
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
+    image: portal-neoguard-api:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Uma única origem de configuração: o mesmo .env do --env-file. A DATABASE_URL é montada aqui
+    # a partir das variáveis POSTGRES_*. Variáveis vazias no .env caem nos padrões abaixo.
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PORTAL_URL: ${PORTAL_URL:-http://localhost:8090}
+      NOTIFICAR_PARA: ${NOTIFICAR_PARA:-ti@neoguard.com.br,suporte@neoguard.com.br,aux.ti@neoguard.com.br}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_SENHA: ${SMTP_SENHA:-}
+      SMTP_REMETENTE: ${SMTP_REMETENTE:-}
+      SMTP_TLS: ${SMTP_TLS:-starttls}
+      GIT_SHA: ${GIT_SHA:-dev}
+      TZ: America/Sao_Paulo
+    # Sem "ports": a API só é alcançada pelo Nginx, dentro da rede do compose.
+    expose:
+      - "8000"
+    networks: [portal]
+    logging: *logging
+
+  web:
+    build:
+      context: ../..
+      dockerfile: portal/deploy/Dockerfile.web
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
+    image: portal-neoguard-web:latest
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "${PORTAL_PORTA:-8090}:80"
+    volumes:
+      # Cadastro real (config/ccts/municipios/site.json), somente leitura. Sem CADASTRO_DIR no
+      # .env cai na pasta vazia do repositório: o Gerador abre, mas avisa que falta o cadastro.
+      - ${CADASTRO_DIR:-./cadastro-vazio}:/usr/share/nginx/html/propostas/data:ro
+    environment:
+      TZ: America/Sao_Paulo
+    networks: [portal]
+    logging: *logging
+
+volumes:
+  pgdata:
+
+networks:
+  portal:
