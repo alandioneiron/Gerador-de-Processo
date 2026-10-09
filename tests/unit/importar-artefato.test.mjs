@@ -98,11 +98,11 @@ test("importação completa grava os arquivos mecânicos e redige o index", asyn
   const r = importar(repo, art);
   assert.equal(r.status, 0, r.stderr);
 
-  // data/: config igual à fixture; ids normalizados (CCT e município com nome fora do padrão)
-  assert.deepEqual(JSON.parse(lerEm(repo, "data/config.json", "utf8")), fixture("config.json"));
-  const ccts = JSON.parse(lerEm(repo, "data/ccts.json", "utf8"));
+  // cadastro-local/: config igual à fixture; ids normalizados (CCT e município com nome fora do padrão)
+  assert.deepEqual(JSON.parse(lerEm(repo, "cadastro-local/config.json", "utf8")), fixture("config.json"));
+  const ccts = JSON.parse(lerEm(repo, "cadastro-local/ccts.json", "utf8"));
   assert.deepEqual(Object.keys(ccts), ["cct-limpeza-sp-2026"]);
-  const municipios = JSON.parse(lerEm(repo, "data/municipios.json", "utf8"));
+  const municipios = JSON.parse(lerEm(repo, "cadastro-local/municipios.json", "utf8"));
   assert.deepEqual(Object.keys(municipios), ["cidade-teste-sp"]);
   assert.equal(municipios["cidade-teste-sp"].cct, "cct-limpeza-sp-2026");
 
@@ -130,13 +130,13 @@ test("importação completa grava os arquivos mecânicos e redige o index", asyn
   for (const f of CONHECIDOS) assert.equal(meta.arquivos[f], sha256(lerEm(art, f)), `sha256 de ${f}`);
 });
 
-test("segunda execução sem mudanças não reescreve data/", async () => {
+test("segunda execução sem mudanças não reescreve o cadastro", async () => {
   const repo = repoMinimo();
   const art = await artefatoFicticio();
   assert.equal(importar(repo, art).status, 0);
 
   // Envelhece o mtime para que uma reescrita apareça mesmo se o conteúdo for igual.
-  const dados = DADOS.map((f) => join(repo, "data", f));
+  const dados = DADOS.map((f) => join(repo, "cadastro-local", f));
   const antigo = new Date("2000-01-01T00:00:00Z");
   for (const f of dados) utimesSync(f, antigo, antigo);
   const conteudoAntes = dados.map((f) => readFileSync(f));
@@ -150,7 +150,7 @@ test("segunda execução sem mudanças não reescreve data/", async () => {
   });
 });
 
-test("ids que ficariam iguais param a importação antes de gravar data/", async () => {
+test("ids que ficariam iguais param a importação antes de gravar o cadastro", async () => {
   const repo = repoMinimo();
   const art = await artefatoFicticio({
     cadastro: cadastroFicticio({ "São Paulo-SP": municipioPadrao(), "sao paulo sp": municipioPadrao() }),
@@ -158,7 +158,7 @@ test("ids que ficariam iguais param a importação antes de gravar data/", async
   const r = importar(repo, art);
   assert.notEqual(r.status, 0, "importação deveria falhar com ids repetidos");
   assert.match(r.stderr, /ficariam iguais/);
-  for (const f of DADOS) assert.equal(existsSync(join(repo, "data", f)), false, `${f} foi gravado mesmo com colisão`);
+  for (const f of DADOS) assert.equal(existsSync(join(repo, "cadastro-local", f)), false, `${f} foi gravado mesmo com colisão`);
 });
 
 test("modelo sem as frases de conferência para a importação", async () => {
